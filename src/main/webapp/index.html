@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+<title>Home</title>
+</head>
+<body class="lift:content_id=main">
+	<div id="main" class="lift:surround?with=default;at=content">
+
+		<div class="row">
+			<div class="col-sm-12">
+				<div style="float: left; margin-right: 10px;">
+					<i class="fa fa-btc fa-5x"></i>
+				</div>
+				<h2>Welcome to BTC Stat!</h2>
+				<p>Information on this page is
+					only of interest to the owners of this BTC mining operation. Thank
+					you for visiting!</p>
+			</div>
+		</div>
+
+			<!-- reward section start -->
+			<div class="row">
+				<div class="col-sm-12" >
+				
+					<h3><i class="fa fa-wrench"></i> Current Work Info</h3>
+
+					<div ng-controller="RewardCtrl" class="table-responsive" id="reward_tbl">
+						<table  class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-money"></i> <abbr id="reward_pop"
+										title="Reward Calculation"
+										data-content="User rewards in round is calculated as: (25 BTC + block fees - 2% fee) * (shares found by user's workers) / (total shares in current round)">Reward</abbr></th>
+									<th>Confirmed</th>
+									<th>Unconfirmed</th>
+									<th>Estimated</th>
+									<th>Accumulated</th>
+								</tr>
+							</thead>
+							<tbody >
+								<tr>
+									<td><strong>BTC</strong></td>
+									<td style="color:darkgreen;"><abbr id="confirmed_reward" class="confirmed_tip"
+										title="Your confirmed balance in BTC from valid blocks in this round"  >{{myData.confirmed_reward}}</abbr></td>
+									<td><abbr id="unconfirmed_reward" class="unconfirmed_tip"
+										title="Pending reward in BTC from unconfirmed blocks in this round">{{myData.unconfirmed_reward}}</abbr></td>
+									<td><abbr id="estimated_reward" class="estimated_tip"
+										title="Estimated reward in BTC from current round in this round">{{myData.estimated_reward}}</abbr></td>
+									<td><abbr id="accum_reward" class="accum_tip"
+										title="Current balance in BTC counting confirmed and unconfirmed blocks in this round">{{myData.accum_reward}}</abbr></td>
+								</tr>
+								<tr>
+									<td><strong>USD</strong></td>
+									<td><abbr id="confirmed_reward_USD" class="confirmed_tip"
+										title="Your confirmed balance in USD from valid blocks">{{myData.confirmed_reward_USD}}</abbr></td>
+									<td><abbr id="unconfirmed_reward_USD"
+										class="unconfirmed_tip"
+										title="Pending reward in USD from unconfirmed blocks">{{myData.unconfirmed_reward_USD}}</abbr></td>
+									<td><abbr id="estimated_reward_USD" class="estimated_tip"
+										title="Estimated reward in USD from current round">{{myData.estimated_reward_USD}}</abbr></td>
+									<td><abbr id="accum_reward_USD" class="accum_tip"
+										title="Current balance in USD counting confirmed and unconfirmed blocks">{{myData.accum_reward_USD}}</abbr></td>
+								</tr>
+								<tr>
+									<td><strong>EUR</strong></td>
+									<td><abbr id="confirmed_reward_EUR" class="confirmed_tip"
+										title="Your confirmed balance in EUR from valid blocks">{{myData.confirmed_reward_EUR}}</abbr></td>
+									<td><abbr id="unconfirmed_reward_EUR"
+										class="unconfirmed_tip"
+										title="Pending reward in EUR from unconfirmed blocks">{{myData.unconfirmed_reward_EUR}}</abbr></td>
+									<td><abbr id="estimated_reward_EUR" class="estimated_tip"
+										title="Estimated reward in EUR from current round">{{myData.estimated_reward_EUR}}</abbr></td>
+									<td><abbr id="accum_reward_EUR" class="accum_tip"
+										title="Current balance in EUR counting confirmed and unconfirmed blocks">{{myData.accum_reward_EUR}}</abbr></td>
+								</tr>
+								<tr>
+									<td><strong>SEK</strong></td>
+									<td><abbr id="confirmed_reward_SEK" class="confirmed_tip"
+										title="Your confirmed balance in SEK from valid blocks">{{myData.confirmed_reward_SEK}}</abbr></td>
+									<td><abbr id="unconfirmed_reward_SEK"
+										class="unconfirmed_tip"
+										title="Pending reward in SEK from unconfirmed blocks">{{myData.unconfirmed_reward_SEK}}</abbr></td>
+									<td><abbr id="estimated_reward_SEK" class="estimated_tip"
+										title="Estimated reward in SEK from current round">{{myData.estimated_reward_SEK}}</abbr></td>
+									<td><abbr id="accum_reward_SEK" class="accum_tip"
+										title="Current balance in SEK counting confirmed and unconfirmed blocks">{{myData.accum_reward_SEK}}</abbr></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- reward tbl end -->
+				</div>
+			</div>
+			<!-- reward section end -->
+
+
+			<!-- stat section start -->
+			<div class="row">
+				<div class="col-sm-12">
+
+					<div ng-controller="SlushPoolStatCtrl" class="table-responsive">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-tachometer"></i> System statistics</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><strong>Current round started at:</strong></td>
+									<td><span id="sps_round_started"
+										class="sps_round_started_tip" title="">{{myData.sps_round_started}}</span> <span ng-show="myData.length != 0">UTC</span></td>
+								</tr>
+								<tr>
+									<td><strong>Current round duration:</strong></td>
+									<td><span id="sps_round_duration"
+										class="sps_round_duration_tip" title="">{{myData.sps_round_duration}}</span></td>
+								</tr>
+								<tr>
+									<td><strong>Current shares CDF:</strong></td>
+									<td><span id="sps_shares_cdf" class="sps_shares_cdf_tip"
+										title="">{{myData.sps_shares_cdf}}</span> <span ng-show="myData.length != 0">%</span></td>
+								</tr>
+								<tr>
+									<td><strong>Pool luck (1 day, 7 days, 30 days):</strong></td>
+									<td><span id="sps_luck_1" class="sps_luck_1_tip" title="">{{myData.sps_luck_1}}</span><span ng-show="myData.length != 0">%,</span>
+										<span id="sps_luck_7" class="sps_luck_7_tip" title="">{{myData.sps_luck_7}}</span><span ng-show="myData.length != 0">%,</span>
+										<span id="sps_luck_30" class="sps_luck_30_tip" title="">{{myData.sps_luck_30}}</span><span ng-show="myData.length != 0">%</span></td>
+								</tr>
+								<tr>
+									<td><strong>Total score of current round:</strong></td>
+									<td><span id="sps_score" class="sps_score_tip" title="">{{myData.sps_score}}</span></td>
+								</tr>
+								<tr>
+									<td><strong>Shares contributed in current round:</strong></td>
+									<td><span id="sps_shares" class="sps_shares_tip" title="">{{myData.sps_shares}}</span></td>
+								</tr>
+								<!-- 								<tr> -->
+								<!-- 									<td><strong>Approx. cluster performance (30 min average):</strong></td> -->
+								<!-- 									<td><span id="sps_ghashes_ps" -->
+								<!-- 										class="sps_ghashes_ps_tip" title="">Replace</span> Ghash/s</td> -->
+								<!-- 								</tr> -->
+								<tr>
+									<td><strong>Approx. cluster performance (30 min
+											average):</strong></td>
+									<td><span id="sps_thashes_ps" class="sps_thashes_ps_tip"
+										title="">{{myData.sps_thashes_ps}}</span> <span ng-show="myData.length != 0">Thash/s</span></td>
+								</tr>
+								<!-- 								<tr> -->
+								<!-- 									<td><strong>Number of active workers:</strong></td> -->
+								<!-- 									<td><span id="sps_active_workers" -->
+								<!-- 										class="sps_active_workers_tip" title="">Replace</span></td> -->
+								<!-- 								</tr>								 -->
+							</tbody>
+						</table>
+					</div>
+					<!-- system stat table end -->
+				</div>
+			</div>
+			<!-- system stat section end -->
+
+
+			<!-- transaction section start -->
+			<div class="row">
+				<div class="col-sm-12 miner-bg">
+					<h3><i class="fa fa-credit-card"></i> Wallet Info</h3>				
+					
+					<div ng-controller="WalletCtrl" class="table-responsive">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-exchange"></i> Transactions</th>
+									<th></th>
+									<th></th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+<!-- 								<tr> -->
+<!-- 									<td><strong>No. Transactions</strong></td> -->
+<!-- 									<td><abbr id="wallet_no_transactions" -->
+<!-- 										class="wallet_no_transactions_tip" -->
+<!-- 										title="Total number of transactions">{{myData.wallet_no_transactions}}</abbr></td> -->
+<!-- 									<td></td> -->
+<!-- 									<td></td> -->
+<!-- 								</tr> -->
+								<tr>
+									<td><strong>Total Received</strong></td>
+									<td style="color:darkgreen;"><abbr id="wallet_total_received"
+										class="wallet_total_received_tip" 
+										title="Total amount received from all incomming transactions">{{myData.wallet_total_received}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span></td>
+									<td><strong>No. Transactions</strong></td>
+									<td><abbr id="wallet_no_transactions"
+										class="wallet_no_transactions_tip"
+										title="Total number of transactions">{{myData.wallet_no_transactions}}</abbr></td>
+								</tr>
+								<tr>
+									<td><strong>Final Balance</strong></td>
+									<td><abbr id="wallet_final_balance"
+										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span></td>
+									<td><strong>Forward Split</strong> <i class="fa fa-share"></i></td>
+									<td><abbr id="wallet_forward_split"
+										class="wallet_forward_split_tip"
+										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- transaction section end -->
+
+			<!-- kapiton section start -->
+			
+<!-- 			<div class="row"> -->
+<!-- 				<div class="col-sm-12"> -->
+<!-- 					<h3><i class="fa fa-bar-chart-o"></i> Kapiton Market Info</h3>				 -->
+<!-- 					<div class="row"> -->
+<!-- 						<div class="col-sm-6"> -->
+<!-- 							<div class="table-responsive"> -->
+<!-- 								<table ng-controller="KapitonCtrl" class="table table-hover table-striped"> -->
+<!-- 									<thead> -->
+<!-- 										<tr> -->
+<!-- 											<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span>BTC</th> -->
+<!-- 											<th>SEK</th> -->
+<!-- 										</tr> -->
+<!-- 									</thead> -->
+<!-- 									<tbody> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Price</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_price" -->
+<!-- 												class="kapiton_ticker_price_tip" title="">{{myData.kapiton_ticker_price}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Bid</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_bid" -->
+<!-- 												class="kapiton_ticker_bid_tip" title="">{{myData.kapiton_ticker_bid}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Hi</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_hi" -->
+<!-- 												class="kapiton_ticker_hi_tip" title="">{{myData.kapiton_ticker_hi}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Low</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_low" -->
+<!-- 												class="kapiton_ticker_low_tip" title="">{{myData.kapiton_ticker_low}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Volym</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_vol" -->
+<!-- 												class="kapiton_ticker_vol_tip" title="">{{myData.kapiton_ticker_vol}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Monthly Average</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_moavg" -->
+<!-- 												class="kapiton_ticker_moavg_tip" title="">{{myData.kapiton_ticker_moavg}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 										<tr> -->
+<!-- 											<td><strong>Monthly Volym</strong></td> -->
+<!-- 											<td><abbr id="kapiton_ticker_movol" -->
+<!-- 												class="kapiton_ticker_movol_tip" title="">{{myData.kapiton_ticker_movol}}</abbr></td> -->
+<!-- 										</tr> -->
+<!-- 									</tbody> -->
+<!-- 								</table> -->
+<!-- 							</div> -->
+							
+<!-- 						</div> -->
+						
+<!-- 						<div class="col-sm-6"> -->
+<!-- 							<span></span> -->
+<!-- 						</div> -->
+					
+<!-- 					</div> -->
+					
+<!-- 				</div> -->
+<!-- 			</div> -->
+			
+			<!-- kapiton section end -->
+			
+			
+             <!-- mtgox section -->
+			<div class="row">
+				<div class="col-sm-12">
+					<h3><i class="fa fa-bar-chart-o"></i> Mt. Gox Market Info</h3>				
+
+					<div class="row">
+						<div class="col-sm-12">
+							<a href="http://bitcoincharts.com/charts/mtgoxSEK" target="_blank">
+								<img
+								src="http://bitcoincharts.com/charts/chart.png?m=mtgoxSEK&SubmitButton=Draw&r=60&i=&c=0&s=&e=&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&"
+								class="img-responsive" alt="Responsive image">
+							</a>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-12">
+							<a href="http://bitcoincharts.com/charts/mtgoxUSD" target="_blank">
+								<img
+								src="http://bitcoincharts.com/charts/chart.png?m=mtgoxUSD&SubmitButton=Draw&r=60&i=&c=0&s=&e=&Prev=&Next=&t=S&b=&a1=&m1=10&a2=&m2=25&x=0&i1=&i2=&i3=&i4=&v=1&cv=0&ps=0&l=0&p=0&"
+								class="img-responsive" alt="Responsive image">
+							</a>
+						</div>
+					</div>
+
+				</div>
+			</div>  
+			           
+             <!-- mtgox section end -->			
+             
+             
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.confirmed_tip"></script>
+
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.unconfirmed_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.estimated_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.accum_tip"></script>
+
+		<script
+			data-lift="FoBo.Bs3Comp.tooltip?id=.wallet_no_transactions_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.wallet_total_received_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.wallet_final_balance_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.wallet_forward_split_tip"></script>
+
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_price_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_bid_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_hi_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_low"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_vol_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_moavg_tip"></script>
+		<script data-lift="FoBo.Bs3Comp.tooltip?id=.kapiton_ticker_movol_tip"></script>
+
+		<script
+			data-lift="FoBo.Bs3Comp.popover?id=#reward_pop&options=placement:'auto top',trigger:'hover'"></script>
+
+        <span data-lift="RoundTripInjector"> This snippet injects the roundtrip binding scripts</span>
+	</div>
+</body>
+</html>
+
