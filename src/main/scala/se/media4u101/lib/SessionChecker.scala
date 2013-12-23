@@ -11,7 +11,7 @@ object SessionChecker extends Function2[Map[String, SessionInfo], SessionInfo =>
   def defaultKillWhen = 180000L 
   // how long do we wait to kill single browsers 
   @volatile var killWhen = defaultKillWhen 
-  @volatile var killCnt = 0 
+  @volatile var killCnt = 1 
   def apply(sessions: Map[String, SessionInfo], 
             destroyer: SessionInfo => Unit): Unit = { 
     val cutoff = millis - 180000L 

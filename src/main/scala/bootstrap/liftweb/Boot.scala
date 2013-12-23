@@ -58,7 +58,7 @@ class Boot {
     FoBo.init()       
     
     MyScheduledRestTask ! MyScheduledRestTask.DoIt
-    LiftRules.unloadHooks.append(() => MyScheduledRestTask ! MyScheduledRestTask.Stop)    
+       
    
    SessionMaster.sessionCheckFuncs = SessionMaster.sessionCheckFuncs ::: List(SessionChecker)
     // Dump information about session every 10 minutes
@@ -66,7 +66,12 @@ class Boot {
     LiftRules.snippetDispatch.append(Map("runtime_stats" -> RuntimeStats))
 
     // Dump browser information each time a new connection is made
-    LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing    
+    LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing      
+    
+    //Things to do when Lift is shut down.
+    LiftRules.unloadHooks.append(() => MyScheduledRestTask ! MyScheduledRestTask.Stop) 
+    LiftRules.unloadHooks.append(() =>  SessionMaster.sessionWatchers = List() ) 
+    LiftRules.unloadHooks.append(() =>  SessionMaster.sessionCheckFuncs = List() ) 
     
   }
   
@@ -155,46 +160,47 @@ object BrowserLogger extends Loggable {
 }
 
 //see https://www.assembla.com/wiki/show/liftweb/Sessions
-object SessionInfoDumper extends LiftActor with Loggable { 
-  private var lastTime = millis 
-  private def cyclePeriod = 5 minute 
-  import se.media4u101.lib.SessionChecker 
-  protected def messageHandler = 
-    { 
-      case SessionWatcherInfo(sessions) => 
-        if ((millis - cyclePeriod) > lastTime) { 
-          lastTime = millis 
-          val rt = Runtime.getRuntime 
-          rt.gc 
-          RuntimeStats.lastUpdate = now 
-          RuntimeStats.totalMem = rt.totalMemory 
-          RuntimeStats.freeMem = rt.freeMemory 
-          RuntimeStats.sessions = sessions.size 
-          val percent = (RuntimeStats.freeMem * 100L) / RuntimeStats.totalMem 
+object SessionInfoDumper extends LiftActor with Loggable {
+  private var lastTime = millis
+  private def cyclePeriod = 5 minute
+  import se.media4u101.lib.SessionChecker
+  protected def messageHandler =
+    {
+      case SessionWatcherInfo(sessions) =>
+        if ((millis - cyclePeriod) > lastTime) {
+          lastTime = millis
+          val rt = Runtime.getRuntime
+          rt.gc
+          RuntimeStats.lastUpdate = now
+          RuntimeStats.totalMem = rt.totalMemory
+          RuntimeStats.freeMem = rt.freeMemory
+          RuntimeStats.sessions = sessions.size
+          val percent = (RuntimeStats.freeMem * 100L) / RuntimeStats.totalMem
           // get more aggressive about purging if we're 
           // at less than 35% free memory 
-          if (percent < 35L) { 
-            SessionChecker.killWhen /= 2L 
-    if (SessionChecker.killWhen < 5000L) 
-      SessionChecker.killWhen = 5000L 
-            SessionChecker.killCnt *= 2 
-          } else { 
-            SessionChecker.killWhen *= 2L 
-    if (SessionChecker.killWhen > 
-                SessionChecker.defaultKillWhen) 
-     SessionChecker.killWhen = SessionChecker.defaultKillWhen 
-            val newKillCnt = SessionChecker.killCnt / 2 
-    if (newKillCnt > 0) SessionChecker.killCnt = newKillCnt 
-          } 
-          val dateStr: String = now.toString 
-          logger.info("[BTC-STAT MEMDEBUG] At " + dateStr + " Number of open sessions: " + sessions.size) 
-          logger.info("[BTC-STAT MEMDEBUG] Free Memory: " + pretty(RuntimeStats.freeMem)) 
-          logger.info("[BTC-STAT MEMDEBUG] Total Memory: " + pretty(RuntimeStats.totalMem)) 
-          logger.info("[BTC-STAT MEMDEBUG] Kill Interval: " + (SessionChecker.killWhen / 1000L)) 
-          logger.info("[BTC-STAT MEMDEBUG] Kill Count: " + (SessionChecker.killCnt)) 
-        } 
-    } 
-  private def pretty(in: Long): String = 
-    if (in > 1000L) pretty(in / 1000L) + "," + (in % 1000L) 
-    else in.toString 
+          if (percent < 35L) {
+            SessionChecker.killWhen /= 2L
+            if (SessionChecker.killWhen < 5000L)
+              SessionChecker.killWhen = 5000L
+            SessionChecker.killCnt *= 2
+          } else {
+            SessionChecker.killWhen *= 2L
+            if (SessionChecker.killWhen >
+              SessionChecker.defaultKillWhen)
+              SessionChecker.killWhen = SessionChecker.defaultKillWhen
+            val newKillCnt = SessionChecker.killCnt / 2
+            if (newKillCnt > 0) SessionChecker.killCnt = newKillCnt
+          }
+          val dateStr: String = now.toString
+          logger.info("[BTC-STAT MEMDEBUG] At " + dateStr + " Number of open sessions: " + sessions.size)
+          logger.info("[BTC-STAT MEMDEBUG] Free Memory: " + pretty(RuntimeStats.freeMem))
+          logger.info("[BTC-STAT MEMDEBUG] Total Memory: " + pretty(RuntimeStats.totalMem))
+          logger.info("[BTC-STAT MEMDEBUG] Kill Interval: " + (SessionChecker.killWhen / 1000L))
+          logger.info("[BTC-STAT MEMDEBUG] Kill Count: " + (SessionChecker.killCnt))
+          }
+         
+    }
+  private def pretty(in: Long): String =
+    if (in > 1000L) pretty(in / 1000L) + "," + (in % 1000L)
+    else in.toString
 } 

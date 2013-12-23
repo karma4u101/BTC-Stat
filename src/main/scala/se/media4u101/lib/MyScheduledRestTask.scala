@@ -22,9 +22,13 @@ object MyScheduledRestTask extends LiftActor with Loggable {
         RestProxy.doScheduleJob() 
         
         logger.debug("MyScheduledTask.DoIt end")
+        }else{
+          logger.debug("MyScheduledTask.DoIt Oh I have been asked to stop oki doki bye bye")
         }
-     case Stop =>
+     case Stop => {
+       logger.debug("MyScheduledTask.Stop Lift is shuting down so asking this service to stop.")
        stopped = true
+     }
    }
  
 }
