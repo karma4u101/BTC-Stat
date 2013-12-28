@@ -1,4 +1,4 @@
-angular.module('ui.bootstrap').controller('SlushPoolStatCtrl',['$scope', function($scope){	
+var slushPoolStatCtrl = myMod.controller('SlushPoolStatCtrl',['$scope', function($scope){	
 	
 	$scope.myData = function() {
 	    var promise = myRTFunctions.doSlushPoolStatRT(); // call to lift function
@@ -25,8 +25,9 @@ angular.module('ui.bootstrap').controller('SlushPoolStatCtrl',['$scope', functio
 			});
 		}, timoutMillis);
 	};
-	//kick of the intervall function
+	//start the interval function
 	$scope.intervalFunction();		
-	
-	console.log($scope.myData());
+	//initial ask for data
+	var d = $scope.myData()
+	//console.log(d);
 }]);

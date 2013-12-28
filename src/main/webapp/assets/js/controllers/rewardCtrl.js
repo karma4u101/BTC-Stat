@@ -1,6 +1,5 @@
-angular.module('ngAnimate').controller('RewardCtrl',
-		[ '$scope', function($scope) {
-
+var rewardCtrl = myMod.controller('RewardCtrl',
+					[ '$scope', 'pageTitle', function($scope,pageTitle) {
 			//Core function 
 			$scope.myData = function() {
 				// call to lift function
@@ -24,14 +23,16 @@ angular.module('ngAnimate').controller('RewardCtrl',
 						$scope.$apply(function() {
 							$scope.myData = data;
 						})
+						//add confirmed reward to the page title using injected service
+						pageTitle($scope.myData.confirmed_reward)
 						return data;
 					});
 				}, timoutMillis);
 			};
-			//kick of the intervall function
+			//start the interval function
 			$scope.intervalFunction();
-			
-			console.log($scope.myData());
-
+			//initial ask for data
+			var d = $scope.myData()
+			//pageTitle(d.confirmed_reward)
+			//console.log(d);
 		} ]);
-

@@ -1,5 +1,6 @@
 
-angular.module('ui.bootstrap').controller('WalletCtrl',['$scope', function($scope){	
+//angular.module('ui.bootstrap').controller('WalletCtrl',['$scope', function($scope){	
+var walletCtrl = myMod.controller('WalletCtrl',['$scope', function($scope){	
 	
 	$scope.myData = function() {
 		//$scope.myData = 
@@ -27,8 +28,9 @@ angular.module('ui.bootstrap').controller('WalletCtrl',['$scope', function($scop
 			});
 		}, timoutMillis);
 	};
-	//kick of the intervall function
+	//start the interval function
 	$scope.intervalFunction();	
-	
-	console.log($scope.myData());
+	//initial ask for data
+	var d = $scope.myData()
+	//console.log(d);
 }]);
