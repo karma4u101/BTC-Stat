@@ -1,4 +1,5 @@
-angular.module('ui.bootstrap').controller('KapitonCtrl',['$scope', function($scope){	
+//angular.module('ui.bootstrap').controller('KapitonCtrl',['$scope', function($scope){	
+var kapitonCtrl = myMod.controller('KapitonCtrl',['$scope', function($scope){	
 	
 	$scope.myData = function() {
 		//$scope.myData = 
@@ -26,8 +27,9 @@ angular.module('ui.bootstrap').controller('KapitonCtrl',['$scope', function($sco
 			});
 		}, timoutMillis);
 	};
-	//kick of the intervall function
+	//start the interval function
 	$scope.intervalFunction();	
-	
-	console.log($scope.myData());
+	//initial ask for data
+	var d = $scope.myData()
+	//console.log(d);
 }]);
