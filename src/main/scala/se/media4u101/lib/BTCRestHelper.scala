@@ -156,14 +156,10 @@ trait BTCRestHelper extends Loggable {
   
   private def getFormatedServerDateTime(data:JValue) :JValue = {
     import net.liftweb.json.JsonDSL._
-    logger.debug("BTCRestHelper::serverDateTime() data="+data.toString())     
     val millis : Option[BigInt] = (for {JField("btc_server_system_millis",JInt(millis)) <- data } yield millis).headOption
-    logger.debug("BTCRestHelper::serverDateTime() millis="+millis.toString())     
     val date = new java.util.Date(millis.get.toLong)
-    logger.debug("BTCRestHelper::serverDateTime() date="+date.toString())     
-    val formatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z") 
+    val formatter = new java.text.SimpleDateFormat("dd MMM 'at' HH:mm z") 
     val fdate = formatter.format(date)
-    logger.debug("BTCRestHelper::serverDateTime() fdate="+fdate) 
     ("btc_server_dt" -> fdate)
   }
   
