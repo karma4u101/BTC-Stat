@@ -30,6 +30,13 @@ trait BTCRestHelper extends Loggable {
     wdata
   }
   
+  def getServerDateTime():JValue = {
+    import net.liftweb.json.JsonDSL._
+    val millis = RestProxy.fetchServerSystemMillis()
+    val datetime = this.getMergedServerDateTime(millis)
+    datetime
+  }  
+  
   def getAccProfileData():JValue = {
     import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getAccProfileData()")
@@ -46,6 +53,11 @@ trait BTCRestHelper extends Loggable {
   }  
   
   /*Methods below is doing some internal calculations and json manipulations, no other external references used */
+  private def getMergedServerDateTime(millis:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val dateTime = this.getFormatedServerDateTime(millis)
+    dateTime
+  }
   
   private def getMergedKapitonData(kdata:JValue):JValue = {
     import net.liftweb.json.JsonDSL._
@@ -69,7 +81,7 @@ trait BTCRestHelper extends Loggable {
     val stratum    = this.SlushPoolStatActivetSratum(data)
     val workers    = this.SlushPoolStatActiveWorkers(data)
     val ghashshare = this.SlushPoolStatGHashesPoolShare(data)    
-   val luck1      = this.SlushPoolStatLuck1(data)
+    val luck1      = this.SlushPoolStatLuck1(data)
     val luck7      = this.SlushPoolStatLuck7(data)
     val luck30     = this.SlushPoolStatLuck30(data)
     val duration   = this.SlushPoolStatRoundDuration(data)
@@ -97,10 +109,10 @@ trait BTCRestHelper extends Loggable {
     import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedAccProfileData()")
     val accum   = this.rewardAccumBTC(accdata)
-    val data = accdata merge accum
+    val data = accdata merge accum 
     data
   }
-  
+    
   private def getMergedMtgoxSEKData(accdata:JValue,mtgox:JValue) : JValue = {
     import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedMtgoxSEKData()")    
@@ -142,6 +154,18 @@ trait BTCRestHelper extends Loggable {
   
   /*-------------Account Profile data start ------------------*/
   
+  private def getFormatedServerDateTime(data:JValue) :JValue = {
+    import net.liftweb.json.JsonDSL._
+    logger.debug("BTCRestHelper::serverDateTime() data="+data.toString())     
+    val millis : Option[BigInt] = (for {JField("btc_server_system_millis",JInt(millis)) <- data } yield millis).headOption
+    logger.debug("BTCRestHelper::serverDateTime() millis="+millis.toString())     
+    val date = new java.util.Date(millis.get.toLong)
+    logger.debug("BTCRestHelper::serverDateTime() date="+date.toString())     
+    val formatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z") 
+    val fdate = formatter.format(date)
+    logger.debug("BTCRestHelper::serverDateTime() fdate="+fdate) 
+    ("btc_server_dt" -> fdate)
+  }
   
   private def rewardAccumBTC(data:JValue):JValue = {
     import net.liftweb.json.JsonDSL._
@@ -505,7 +529,7 @@ trait BTCRestHelper extends Loggable {
     import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField("round_started",JString(round_started)) <- spdata } yield round_started ).headOption
     if(value.isDefined){
-      logger.debug("BTCRestHelper::SlushPoolRoundStarted value.get='"+value.get+"'")
+      //logger.debug("BTCRestHelper::SlushPoolRoundStarted value.get='"+value.get+"'")
       ("sps_round_started" -> value.get)      
     }else{
       ("sps_round_started" -> "NaN")      

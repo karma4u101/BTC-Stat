@@ -23,8 +23,8 @@
 			<div class="row">
 				<div class="col-sm-12" >
 				
-					<h3><i class="fa fa-wrench"></i> Current Work Info</h3>
-
+					<h3><i class="fa fa-wrench"></i> Current Work Info <small ng-controller="ServerDateTimeCtrl">Data fetched at {{myData.btc_server_dt}}</small></h3>
+<!--                     <p><small ng-controller="ServerDateTimeCtrl">Data fetched at {{myData.btc_server_dt}}</small></p> -->
 					<div ng-controller="RewardCtrl" class="table-responsive" id="reward_tbl">
 					
 						<table  class="table table-hover table-striped">

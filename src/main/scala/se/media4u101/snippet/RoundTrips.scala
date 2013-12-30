@@ -37,10 +37,16 @@ trait RoundTrips extends EmptyRoundTrip with BTCRestHelper with Loggable {
     func.send(getKapitonData())
   }  
   
+  protected def doServerDateTimeRT(value : JValue, func : RoundTripHandlerFunc) : Unit = {
+    logger.debug("RoundTrips::doServerDateTimeRT()")
+    func.send(getServerDateTime())
+  }  
+  
   private val roundtrips : List[RoundTripInfo] = List("doAccProfileRT" -> doAccProfileRT _ ,
       "doWalletRT" -> doWalletRT _ ,
       "doSlushPoolStatRT" -> doSlushPoolStatRT _,
-      "doKapitonRT" -> doKapitonRT _ )
+      "doKapitonRT" -> doKapitonRT _,
+      "doServerDateTimeRT" -> doServerDateTimeRT _ )
   abstract override def getRoundTrips = super.getRoundTrips ++ roundtrips  
   
 }
