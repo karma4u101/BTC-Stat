@@ -13,7 +13,7 @@ import net.liftweb.util.{ Props }
 import net.liftweb.http.provider.HTTPRequest
 
 import net.liftmodules.{FoBo}
-import se.media4u101.lib.{ MyScheduledRestTask,SessionChecker}
+import se.media4u101.lib.{ BTCScheduledRestTask,SessionChecker}
 import se.media4u101.snippet.RuntimeStats
 
 
@@ -57,9 +57,9 @@ class Boot {
     FoBo.InitParam.ToolKit=FoBo.Pace0415
     FoBo.init()       
     
-    MyScheduledRestTask ! MyScheduledRestTask.DoIt
+    //Start the scheduler
+    BTCScheduledRestTask ! BTCScheduledRestTask.DoJob
        
-   
    SessionMaster.sessionCheckFuncs = SessionMaster.sessionCheckFuncs ::: List(SessionChecker)
     // Dump information about session every 10 minutes
     SessionMaster.sessionWatchers = SessionInfoDumper :: SessionMaster.sessionWatchers
@@ -69,15 +69,12 @@ class Boot {
     LiftSession.onBeginServicing = BrowserLogger.haveSeenYou _ :: LiftSession.onBeginServicing      
     
     //Things to do when Lift is shut down.
-    LiftRules.unloadHooks.append(() => MyScheduledRestTask ! MyScheduledRestTask.Stop) 
+    LiftRules.unloadHooks.append(() => BTCScheduledRestTask ! BTCScheduledRestTask.Stop) 
     LiftRules.unloadHooks.append(() =>  SessionMaster.sessionWatchers = List() ) 
     LiftRules.unloadHooks.append(() =>  SessionMaster.sessionCheckFuncs = List() ) 
     
   }
   
-  //https://btc-e.com/
-  //https://kapiton.se/
-  //https://www.mtgox.com/
   object Site {
     import scala.xml._
 
