@@ -19,11 +19,153 @@
 			</div>
 		</div>
 
+			<!-- transaction section start -->
+			<div class="row">
+				<div class="col-sm-12 miner-bg">
+					<h3><i class="fa fa-credit-card"></i> Mining revenue <small ng-controller="ServerDateTimeCtrl">Data fetched {{myData.btc_server_dt}}</small></h3>				
+					
+					<!-- NEW Wallet -->
+					<div ng-controller="WalletCtrl" class="table-responsive">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-exchange"></i> 
+									<abbr id="transactions_pop" title="Transactions"
+										data-content="Incomming transactions is from mining work. Outgoing transactions is rewards to lazy miners. Frirst incomming transaction whas recived 2013-12-03">Trans.</abbr>
+                                   <abbr id="wallet_no_transactions"
+										class="wallet_no_transactions_tip"
+										title="Total number of transactions">({{myData.wallet_no_transactions}})</abbr>
+									</th>
+									<th>Total Received</th>
+									<th>Current Balance</th>
+									<th>Forward Split</strong> <i class="fa fa-share"></i></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><strong>BTC</strong></td>
+									<td style="color:darkgreen;"><abbr id="wallet_total_received"
+										class="wallet_total_received_tip" 
+										title="Total amount received from all incomming transactions">{{myData.wallet_total_received}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span>
+									</td>
+									<td><abbr id="wallet_final_balance"
+										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span>
+									</td>
+									<td><abbr id="wallet_forward_split"
+										class="wallet_forward_split_tip"
+										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span>
+									</td>
+								</tr>
+								<tr>
+									<td><strong>USD</strong></td>
+									<td><abbr id="wallet_total_received"
+										class="wallet_total_received_tip" 
+										title="Total amount received from all incomming transactions">{{myData.wallet_total_received_usd}}</abbr>
+										<span ng-show="myData.length != 0">USD</span>
+									</td>
+									<td><abbr id="wallet_final_balance"
+										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance_usd}}</abbr>
+										<span ng-show="myData.length != 0">USD</span>
+									</td>
+									<td><abbr id="wallet_forward_split"
+										class="wallet_forward_split_tip"
+										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split_usd}}</abbr>
+										<span ng-show="myData.length != 0">USD</span>
+									</td>
+								</tr>
+								<tr>
+									<td><strong>EUR</strong></td>
+									<td><abbr id="wallet_total_received"
+										class="wallet_total_received_tip" 
+										title="Total amount received from all incomming transactions">{{myData.wallet_total_received_eur}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span>
+									</td>
+									<td><abbr id="wallet_final_balance"
+										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance_eur}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span>
+									</td>
+									<td><abbr id="wallet_forward_split"
+										class="wallet_forward_split_tip"
+										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split_eur}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span>
+									</td>
+								</tr>		
+								<tr>
+									<td><strong>SEK</strong></td>
+									<td><abbr id="wallet_total_received"
+										class="wallet_total_received_tip" 
+										title="Total amount received from all incomming transactions">{{myData.wallet_total_received_sek}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span>
+									</td>
+									<td><abbr id="wallet_final_balance"
+										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance_sek}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span>
+									</td>
+									<td><abbr id="wallet_forward_split"
+										class="wallet_forward_split_tip"
+										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split_sek}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span>
+									</td>
+								</tr>														
+							</tbody>
+						</table>
+					</div>					
+					
+					
+					<!-- OLD Wallet -->
+<!-- 					<div ng-controller="WalletCtrl" class="table-responsive"> -->
+<!-- 						<table class="table table-hover table-striped"> -->
+<!-- 							<thead> -->
+<!-- 								<tr> -->
+<!-- 									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-exchange"></i>  -->
+<!-- 									<abbr id="transactions_pop" title="Transactions" -->
+<!-- 										data-content="Incomming transactions is from mining work. Outgoing transactions is rewards to lazy miners. Frirst incomming transaction whas recived 2013-12-03">Transactions</abbr> -->
+<!-- 									</th> -->
+<!-- 									<th></th> -->
+<!-- 									<th></th> -->
+<!-- 									<th></th> -->
+<!-- 								</tr> -->
+<!-- 							</thead> -->
+<!-- 							<tbody> -->
+<!-- 								<tr> -->
+<!-- 									<td><strong>Total Received</strong></td> -->
+<!-- 									<td style="color:darkgreen;"><abbr id="wallet_total_received" -->
+<!-- 										class="wallet_total_received_tip"  -->
+<!-- 										title="Total amount received from all incomming transactions">{{myData.wallet_total_received}}</abbr> -->
+<!-- 										<span ng-show="myData.length != 0">BTC</span></td> -->
+<!-- 									<td><strong>No. Transactions</strong></td> -->
+<!-- 									<td><abbr id="wallet_no_transactions" -->
+<!-- 										class="wallet_no_transactions_tip" -->
+<!-- 										title="Total number of transactions">{{myData.wallet_no_transactions}}</abbr></td> -->
+<!-- 								</tr> -->
+<!-- 								<tr> -->
+<!-- 									<td><strong>Final Balance</strong></td> -->
+<!-- 									<td><abbr id="wallet_final_balance" -->
+<!-- 										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance}}</abbr> -->
+<!-- 										<span ng-show="myData.length != 0">BTC</span></td> -->
+<!-- 									<td><strong>Forward Split</strong> <i class="fa fa-share"></i></td> -->
+<!-- 									<td><abbr id="wallet_forward_split" -->
+<!-- 										class="wallet_forward_split_tip" -->
+<!-- 										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split}}</abbr> -->
+<!-- 										<span ng-show="myData.length != 0">BTC</span></td> -->
+<!-- 								</tr> -->
+<!-- 							</tbody> -->
+<!-- 						</table> -->
+<!-- 					</div> -->
+					
+					
+				</div>
+			</div>
+			<!-- transaction section end -->
+
 			<!-- reward section start -->
 			<div class="row">
 				<div class="col-sm-12" >
 				
-					<h3><i class="fa fa-wrench"></i> Current Work Info <small ng-controller="ServerDateTimeCtrl">Data fetched {{myData.btc_server_dt}}</small></h3>
+					<h3><i class="fa fa-wrench"></i> Current Work <small ng-controller="ServerDateTimeCtrl">Data fetched {{myData.btc_server_dt}}</small></h3>
 <!--                     <p><small ng-controller="ServerDateTimeCtrl">Data fetched at {{myData.btc_server_dt}}</small></p> -->
 					<div ng-controller="RewardCtrl" class="table-responsive" id="reward_tbl">
 					
@@ -43,49 +185,65 @@
 								<tr>
 									<td><strong>BTC</strong></td>
 									<td style="color:darkgreen;"><abbr id="confirmed_reward" class="confirmed_tip"
-										title="Your confirmed balance in BTC from valid blocks in this round"  >{{myData.confirmed_reward}}</abbr></td>
+										title="Your confirmed balance in BTC from valid blocks in this round"  >{{myData.confirmed_reward}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span></td>
 									<td><abbr id="unconfirmed_reward" class="unconfirmed_tip"
-										title="Pending reward in BTC from unconfirmed blocks in this round">{{myData.unconfirmed_reward}}</abbr></td>
+										title="Pending reward in BTC from unconfirmed blocks in this round">{{myData.unconfirmed_reward}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span></td>
 									<td><abbr id="estimated_reward" class="estimated_tip"
-										title="Estimated reward in BTC from current round in this round">{{myData.estimated_reward}}</abbr></td>
+										title="Estimated reward in BTC from current round in this round">{{myData.estimated_reward}}</abbr>
+										<span ng-show="myData.length != 0">BTC</span></td>
 									<td><abbr id="accum_reward" class="accum_tip"
-										title="Current balance in BTC counting confirmed and unconfirmed blocks in this round">{{myData.accum_reward}}</abbr></td>
+										title="Current balance in BTC counting confirmed and unconfirmed blocks in this round">{{myData.accum_reward}}</abbr> 
+										<span ng-show="myData.length != 0">BTC</span></td>
 								</tr>
 								<tr>
 									<td><strong>USD</strong></td>
 									<td><abbr id="confirmed_reward_USD" class="confirmed_tip"
-										title="Your confirmed balance in USD from valid blocks">{{myData.confirmed_reward_USD}}</abbr></td>
+										title="Your confirmed balance in USD from valid blocks">{{myData.confirmed_reward_USD}}</abbr>
+										<span ng-show="myData.length != 0">USD</span></td>
 									<td><abbr id="unconfirmed_reward_USD"
 										class="unconfirmed_tip"
-										title="Pending reward in USD from unconfirmed blocks">{{myData.unconfirmed_reward_USD}}</abbr></td>
+										title="Pending reward in USD from unconfirmed blocks">{{myData.unconfirmed_reward_USD}}</abbr>
+										<span ng-show="myData.length != 0">USD</span></td>
 									<td><abbr id="estimated_reward_USD" class="estimated_tip"
-										title="Estimated reward in USD from current round">{{myData.estimated_reward_USD}}</abbr></td>
+										title="Estimated reward in USD from current round">{{myData.estimated_reward_USD}}</abbr>
+										<span ng-show="myData.length != 0">USD</span></td>
 									<td><abbr id="accum_reward_USD" class="accum_tip"
-										title="Current balance in USD counting confirmed and unconfirmed blocks">{{myData.accum_reward_USD}}</abbr></td>
+										title="Current balance in USD counting confirmed and unconfirmed blocks">{{myData.accum_reward_USD}}</abbr>
+										<span ng-show="myData.length != 0">USD</span></td>
 								</tr>
 								<tr>
 									<td><strong>EUR</strong></td>
 									<td><abbr id="confirmed_reward_EUR" class="confirmed_tip"
-										title="Your confirmed balance in EUR from valid blocks">{{myData.confirmed_reward_EUR}}</abbr></td>
+										title="Your confirmed balance in EUR from valid blocks">{{myData.confirmed_reward_EUR}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span></td>
 									<td><abbr id="unconfirmed_reward_EUR"
 										class="unconfirmed_tip"
-										title="Pending reward in EUR from unconfirmed blocks">{{myData.unconfirmed_reward_EUR}}</abbr></td>
+										title="Pending reward in EUR from unconfirmed blocks">{{myData.unconfirmed_reward_EUR}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span></td>
 									<td><abbr id="estimated_reward_EUR" class="estimated_tip"
-										title="Estimated reward in EUR from current round">{{myData.estimated_reward_EUR}}</abbr></td>
+										title="Estimated reward in EUR from current round">{{myData.estimated_reward_EUR}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span></td>
 									<td><abbr id="accum_reward_EUR" class="accum_tip"
-										title="Current balance in EUR counting confirmed and unconfirmed blocks">{{myData.accum_reward_EUR}}</abbr></td>
+										title="Current balance in EUR counting confirmed and unconfirmed blocks">{{myData.accum_reward_EUR}}</abbr>
+										<span ng-show="myData.length != 0">EUR</span></td>
 								</tr>
 								<tr>
 									<td><strong>SEK</strong></td>
 									<td><abbr id="confirmed_reward_SEK" class="confirmed_tip"
-										title="Your confirmed balance in SEK from valid blocks">{{myData.confirmed_reward_SEK}}</abbr></td>
+										title="Your confirmed balance in SEK from valid blocks">{{myData.confirmed_reward_SEK}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span></td>
 									<td><abbr id="unconfirmed_reward_SEK"
 										class="unconfirmed_tip"
-										title="Pending reward in SEK from unconfirmed blocks">{{myData.unconfirmed_reward_SEK}}</abbr></td>
+										title="Pending reward in SEK from unconfirmed blocks">{{myData.unconfirmed_reward_SEK}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span></td>
 									<td><abbr id="estimated_reward_SEK" class="estimated_tip"
-										title="Estimated reward in SEK from current round">{{myData.estimated_reward_SEK}}</abbr></td>
+										title="Estimated reward in SEK from current round">{{myData.estimated_reward_SEK}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span></td>
 									<td><abbr id="accum_reward_SEK" class="accum_tip"
-										title="Current balance in SEK counting confirmed and unconfirmed blocks">{{myData.accum_reward_SEK}}</abbr></td>
+										title="Current balance in SEK counting confirmed and unconfirmed blocks">{{myData.accum_reward_SEK}}</abbr>
+										<span ng-show="myData.length != 0">SEK</span></td>
 								</tr>
 							</tbody>
 						</table>
@@ -162,62 +320,6 @@
 			</div>
 			<!-- system stat section end -->
 
-
-			<!-- transaction section start -->
-			<div class="row">
-				<div class="col-sm-12 miner-bg">
-					<h3><i class="fa fa-credit-card"></i> Wallet Info</h3>				
-					
-					<div ng-controller="WalletCtrl" class="table-responsive">
-						<table class="table table-hover table-striped">
-							<thead>
-								<tr>
-									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-exchange"></i> 
-									<abbr id="transactions_pop" title="Transactions"
-										data-content="Incomming transactions is from mining work. Outgoing transactions is rewards to lazy miners. Frirst incomming transaction whas recived 2013-12-03">Transactions</abbr>
-									</th>
-									<th></th>
-									<th></th>
-									<th></th>
-								</tr>
-							</thead>
-							<tbody>
-<!-- 								<tr> -->
-<!-- 									<td><strong>No. Transactions</strong></td> -->
-<!-- 									<td><abbr id="wallet_no_transactions" -->
-<!-- 										class="wallet_no_transactions_tip" -->
-<!-- 										title="Total number of transactions">{{myData.wallet_no_transactions}}</abbr></td> -->
-<!-- 									<td></td> -->
-<!-- 									<td></td> -->
-<!-- 								</tr> -->
-								<tr>
-									<td><strong>Total Received</strong></td>
-									<td style="color:darkgreen;"><abbr id="wallet_total_received"
-										class="wallet_total_received_tip" 
-										title="Total amount received from all incomming transactions">{{myData.wallet_total_received}}</abbr>
-										<span ng-show="myData.length != 0">BTC</span></td>
-									<td><strong>No. Transactions</strong></td>
-									<td><abbr id="wallet_no_transactions"
-										class="wallet_no_transactions_tip"
-										title="Total number of transactions">{{myData.wallet_no_transactions}}</abbr></td>
-								</tr>
-								<tr>
-									<td><strong>Final Balance</strong></td>
-									<td><abbr id="wallet_final_balance"
-										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance}}</abbr>
-										<span ng-show="myData.length != 0">BTC</span></td>
-									<td><strong>Forward Split</strong> <i class="fa fa-share"></i></td>
-									<td><abbr id="wallet_forward_split"
-										class="wallet_forward_split_tip"
-										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split}}</abbr>
-										<span ng-show="myData.length != 0">BTC</span></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<!-- transaction section end -->
 
 			<!-- kapiton section start -->
 			

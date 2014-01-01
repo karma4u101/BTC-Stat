@@ -25,8 +25,8 @@ trait BTCRestHelper extends Loggable {
   
   def getWalletData():JValue = {
     //logger.debug("BTCRestHelper::getWalletData()") 
-    val data = RestProxy.fetchWalletData()
-    val wdata = this.getMergedWalletData(data)
+    val data = RestProxy.fetchWalletData() 
+    val wdata = this.getMergedWalletData(data)  
     wdata
   }
   
@@ -100,7 +100,15 @@ trait BTCRestHelper extends Loggable {
     val recived = this.walletTotalReceived(wdata)
     val balance = this.walletFinalBalance(wdata)
     val split   = this.walletForwardSplit(wdata)
-    val data = ntx merge recived merge balance merge split 
+
+    val mtgoxSEK  = RestProxy.fetchMtgoxSEK() 
+    val mtgoxUSD = RestProxy.fetchMtgoxUSD() 
+    val mtgoxEUR = RestProxy.fetchMtgoxEUR()       
+    val sekdata = this.getMergedWalletMtgoxSEKData(wdata,mtgoxSEK)
+    val usddata = this.getMergedWalletMtgoxUSDData(wdata,mtgoxUSD)
+    val eurdata = this.getMergedWalletMtgoxEURData(wdata,mtgoxEUR)      
+    
+    val data = ntx merge recived merge balance merge split merge sekdata merge usddata merge eurdata
     data
   }
   
@@ -113,6 +121,33 @@ trait BTCRestHelper extends Loggable {
     data
   }
     
+  private def getMergedWalletMtgoxSEKData(wdata:JValue,mtgox:JValue) : JValue = {
+    import net.liftweb.json.JsonDSL._
+    val wbal   = this.walletFinalBalanceSEK(wdata,mtgox)
+    val wtot   = this.walletTotalReceivedSEK(wdata,mtgox)
+    val wsplit = this.walletForwardSplitSEK(wdata,mtgox)
+    val data = wbal merge wtot merge wsplit 
+    data
+  }  
+   
+  private def getMergedWalletMtgoxUSDData(wdata:JValue,mtgox:JValue) : JValue = {
+    import net.liftweb.json.JsonDSL._
+    val wbal   = this.walletFinalBalanceUSD(wdata,mtgox)
+    val wtot   = this.walletTotalReceivedUSD(wdata,mtgox)
+    val wsplit = this.walletForwardSplitUSD(wdata,mtgox)
+    val data = wbal merge wtot merge wsplit 
+    data
+  }
+  
+  private def getMergedWalletMtgoxEURData(wdata:JValue,mtgox:JValue) : JValue = {
+    import net.liftweb.json.JsonDSL._
+    val wbal   = this.walletFinalBalanceEUR(wdata,mtgox)
+    val wtot   = this.walletTotalReceivedEUR(wdata,mtgox)
+    val wsplit = this.walletForwardSplitEUR(wdata,mtgox)
+    val data = wbal merge wtot merge wsplit 
+    data
+  }  
+  
   private def getMergedMtgoxSEKData(accdata:JValue,mtgox:JValue) : JValue = {
     import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedMtgoxSEKData()")    
@@ -188,7 +223,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
      if(estimated.isDefined && last.isDefined){
        val sum = estimated.get.toDouble * last.get.toDouble
-       ("estimated_reward_SEK" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("SEK"))  
+        val fsum=f.format(sum)        
+       ("estimated_reward_SEK" -> fsum )
      }else{
        ("estimated_reward_SEK" -> "NaN" )
      }
@@ -205,7 +245,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(confirmed.isDefined && last.isDefined){
         val sum = confirmed.get.toDouble * last.get.toDouble
-        ("confirmed_reward_SEK" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("SEK"))  
+        val fsum=f.format(sum)         
+        ("confirmed_reward_SEK" -> fsum )
       }else{
         ("confirmed_reward_SEK" -> "NaN" )
       }
@@ -222,7 +267,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(unconfirmed.isDefined && last.isDefined){
         val sum = unconfirmed.get.toDouble * last.get.toDouble
-        ("unconfirmed_reward_SEK" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("SEK"))  
+        val fsum=f.format(sum)         
+        ("unconfirmed_reward_SEK" -> fsum )
       }else{
         ("unconfirmed_reward_SEK" -> "NaN" )
       }
@@ -240,7 +290,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(unconfirmed.isDefined && confirmed.isDefined && last.isDefined){
         val sum = (unconfirmed.get.toDouble + confirmed.get.toDouble) * last.get.toDouble
-        ("accum_reward_SEK" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("SEK"))  
+        val fsum=f.format(sum)        
+        ("accum_reward_SEK" -> fsum )
       }else{
         ("accum_reward_SEK" -> "NaN" )
       }
@@ -258,7 +313,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
      if(estimated.isDefined && last.isDefined){
        val sum = estimated.get.toDouble * last.get.toDouble
-       ("estimated_reward_USD" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))  
+        val fsum=f.format(sum)       
+       ("estimated_reward_USD" -> fsum )
      }else{
        ("estimated_reward_USD" -> "NaN" )
      }    
@@ -275,7 +335,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(confirmed.isDefined && last.isDefined){
         val sum = confirmed.get.toDouble * last.get.toDouble
-        ("confirmed_reward_USD" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))  
+        val fsum=f.format(sum)        
+        ("confirmed_reward_USD" -> fsum )
       }else{
         ("confirmed_reward_USD" -> "NaN" )
       }    
@@ -292,7 +357,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(unconfirmed.isDefined && last.isDefined){
         val sum = unconfirmed.get.toDouble * last.get.toDouble
-        ("unconfirmed_reward_USD" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))  
+        val fsum=f.format(sum)        
+        ("unconfirmed_reward_USD" -> fsum )
       }else{
         ("unconfirmed_reward_USD" -> "NaN" )
       }    
@@ -310,7 +380,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(unconfirmed.isDefined && confirmed.isDefined && last.isDefined){
         val sum = (unconfirmed.get.toDouble + confirmed.get.toDouble) * last.get.toDouble
-        ("accum_reward_USD" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))  
+        val fsum=f.format(sum)        
+        ("accum_reward_USD" -> fsum )
       }else{
         ("accum_reward_USD" -> "NaN" )
       }    
@@ -328,7 +403,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
      if(estimated.isDefined && last.isDefined){
        val sum = estimated.get.toDouble * last.get.toDouble
-       ("estimated_reward_EUR" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))  
+        val fsum=f.format(sum)       
+       ("estimated_reward_EUR" -> fsum )
      }else{
        ("estimated_reward_EUR" -> "NaN" )
      }     
@@ -345,7 +425,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(confirmed.isDefined && last.isDefined){
         val sum = confirmed.get.toDouble * last.get.toDouble
-        ("confirmed_reward_EUR" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))  
+        val fsum=f.format(sum)        
+        ("confirmed_reward_EUR" -> fsum )
       }else{
         ("confirmed_reward_EUR" -> "NaN" )
       }     
@@ -362,7 +447,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(unconfirmed.isDefined && last.isDefined){
         val sum = unconfirmed.get.toDouble * last.get.toDouble
-        ("unconfirmed_reward_EUR" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))  
+        val fsum=f.format(sum)        
+        ("unconfirmed_reward_EUR" -> fsum )
       }else{
         ("unconfirmed_reward_EUR" -> "NaN" )
       }     
@@ -380,7 +470,12 @@ trait BTCRestHelper extends Loggable {
       } yield value  ).headOption 
       if(unconfirmed.isDefined && confirmed.isDefined && last.isDefined){
         val sum = (unconfirmed.get.toDouble + confirmed.get.toDouble) * last.get.toDouble
-        ("accum_reward_EUR" -> sum )
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))  
+        val fsum=f.format(sum)        
+        ("accum_reward_EUR" -> fsum )
       }else{
         ("accum_reward_EUR" -> "NaN" )
       }     
@@ -403,9 +498,74 @@ trait BTCRestHelper extends Loggable {
     }         
   }
   
+  private def walletForwardSplitSEK(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(balance.isDefined && totres.isDefined && last.isDefined){
+        val split = ((totres.get.toDouble - balance.get.toDouble) / (3*100000000)) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)
+        f.setCurrency(java.util.Currency.getInstance("SEK"))
+        val fsplit = f.format(split)        
+        ("wallet_forward_split_sek" -> fsplit)
+      }else{
+        ("wallet_forward_split_sek" -> "NaN")
+      } 
+  }    
+  
+   private def walletForwardSplitUSD(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(balance.isDefined && totres.isDefined && last.isDefined){
+        val split = ((totres.get.toDouble - balance.get.toDouble) / (3*100000000)) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))
+        val fsplit = f.format(split)          
+        ("wallet_forward_split_usd" -> fsplit)
+      }else{
+        ("wallet_forward_split_usd" -> "NaN")
+      } 
+  } 
+  
+  private def walletForwardSplitEUR(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(balance.isDefined && totres.isDefined && last.isDefined){
+        val split = ((totres.get.toDouble - balance.get.toDouble) / (3*100000000)) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))
+        val fsplit = f.format(split)          
+        ("wallet_forward_split_eur" -> fsplit)
+      }else{
+        ("wallet_forward_split_eur" -> "NaN")
+      } 
+  }
+  
   private def walletFinalBalance(wdata:JValue):JValue = {
     import net.liftweb.json.JsonDSL._      
-    //logger.debug("BTCRestHelper::walletFinalBalance()")     
     val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
     if(balance.isDefined){
       val totBtc = balance.get.toDouble / 100000000
@@ -414,10 +574,73 @@ trait BTCRestHelper extends Loggable {
       ("wallet_final_balance" -> "NaN")
     }    
   }
+    
+  
+  private def walletFinalBalanceSEK(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(balance.isDefined && last.isDefined){
+        val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("SEK"))
+        val fsum = f.format(sum)
+        ("wallet_final_balance_sek" -> fsum )
+      }else{
+        ("wallet_final_balance_sek" -> "NaN" )
+      }
+  }   
+  
+  private def walletFinalBalanceUSD(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(balance.isDefined && last.isDefined){
+        val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))        
+        val fsum=f.format(sum)
+        ("wallet_final_balance_usd" -> fsum )
+      }else{
+        ("wallet_final_balance_usd" -> "NaN" )
+      }
+  }  
+  
+  private def walletFinalBalanceEUR(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(balance.isDefined && last.isDefined){
+        val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))    
+        val fsum=f.format(sum)
+        ("wallet_final_balance_eur" -> fsum )
+      }else{
+        ("wallet_final_balance_eur" -> "NaN" )
+      }
+  }   
   
   private def walletTotalReceived(wdata:JValue):JValue = {
     import net.liftweb.json.JsonDSL._      
-    //logger.debug("BTCRestHelper::walletTotalReceived()")     
     val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
     if(received.isDefined){
       val totBtc = received.get.toDouble / 100000000
@@ -425,7 +648,70 @@ trait BTCRestHelper extends Loggable {
     }else{
       ("wallet_total_received" -> "NaN")
     }
-  }
+  }  
+  
+  private def walletTotalReceivedSEK(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(received.isDefined && last.isDefined){
+        val sum = (received.get.toDouble / 100000000) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("SEK")) 
+        val fsum=f.format(sum)
+        ("wallet_total_received_sek" -> fsum )
+      }else{
+        ("wallet_total_received_sek" -> "NaN" )
+      }
+  }    
+  
+  private def walletTotalReceivedUSD(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(received.isDefined && last.isDefined){
+        val sum = (received.get.toDouble / 100000000) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("USD"))   
+        val fsum=f.format(sum)
+        ("wallet_total_received_usd" -> fsum )
+      }else{
+        ("wallet_total_received_usd" -> "NaN" )
+      }
+  }    
+  
+  private def walletTotalReceivedEUR(wdata:JValue,mtgox:JValue):JValue = {
+    import net.liftweb.json.JsonDSL._
+    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+    val last:Option[String] = (for {
+      JField("data",JObject(list)) <- mtgox 
+      JField("last_all",JObject(list2))  <- list
+      JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      if(received.isDefined && last.isDefined){
+        val sum = (received.get.toDouble / 100000000) * last.get.toDouble
+        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+        f.setMaximumFractionDigits(0)        
+        f.setCurrency(java.util.Currency.getInstance("EUR"))  
+        val fsum=f.format(sum)
+        ("wallet_total_received_eur" -> fsum )
+      }else{
+        ("wallet_total_received_eur" -> "NaN" )
+      }
+  }  
   
   private def walletNrTransactions(wdata:JValue):JValue = {
     import net.liftweb.json.JsonDSL._      
