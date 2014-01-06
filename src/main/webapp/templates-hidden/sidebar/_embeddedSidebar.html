@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+
+<title>Embedded Sidebar template</title>
+</head>
+
+<!-- This is an embedded piece of html -->
+<body class="lift:content_id=sidebar">
+
+<section id="sidebar">
+
+  <span data-lift='embed?what=sidebar/_embeddedLogin'> Embedding the login section here</span>
+
+  <div class="list-group" id="lmenu">
+    <span data-lift="FoBo.Bs3LinkedListGroup.builder?group=lg1"></span>
+  </div>
+  <div class="lift:Msgs?showAll=true"></div>
+  <img src="/assets/images/jupiter.jpeg" alt="The stuff!" class="img-responsive hidden-xs img-circle">
+</section>
+
+</body>

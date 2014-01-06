@@ -14,7 +14,7 @@ import net.liftweb.http.provider.HTTPRequest
 
 import net.liftmodules.{FoBo}
 import se.media4u101.lib.{ BTCScheduledRestTask,SessionChecker}
-import se.media4u101.snippet.RuntimeStats
+import se.media4u101.snippet.{RuntimeStats,isLoggedIn}
 
 
 /**
@@ -30,6 +30,12 @@ class Boot {
     //def sitemapMutators = User.sitemapMutator
     //The SiteMap is built in the Site object bellow 
     LiftRules.setSiteMapFunc(() => Site.sitemap)
+    
+    LiftRules.loggedInTest = Full( 
+      () => {
+        isLoggedIn.get
+      }
+    )    
     
     //Show the spinny image when an Ajax call starts
     LiftRules.ajaxStart =
@@ -130,6 +136,13 @@ class Boot {
         LocGroup("lg1"),
         FoBo.TBLocInfo.LinkTargetBlank ))
         
+        //http://mining.thegenesisblock.com/ //521 909 est 0.02366741
+    val genesis  = Menu(Loc("thegenesisblock", 
+        ExtLink("http://mining.thegenesisblock.com/"),
+        S.loc("thegenesisblock", Text("The Genesis Block")),
+        LocGroup("lg1"),
+        FoBo.TBLocInfo.LinkTargetBlank ))
+        
     def sitemap = SiteMap(
           home >> LocGroup("lg1","top1"),
          /* testing , */
@@ -139,7 +152,8 @@ class Boot {
           btcE,
           /*kapiton,*/
           btctrading,
-          mtgox
+          mtgox,
+          genesis
         )    
   } 
   

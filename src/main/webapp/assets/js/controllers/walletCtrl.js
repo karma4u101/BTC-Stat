@@ -3,7 +3,6 @@
 var walletCtrl = myMod.controller('WalletCtrl',['$scope', function($scope){	
 	
 	$scope.myData = function() {
-		//$scope.myData = 
 	    var promise = myRTFunctions.doWalletRT(); // call to lift function
 	    return promise.then(function(data) {
 	      $scope.$apply(function() {

@@ -38,6 +38,24 @@ a.list-group-item:hover, a.list-group-item:focus {
     font-weight: bold;
 }
 
+.bs-callout-info {
+    background-color: #F4F8FA;
+    border-color: #BCE8F1;
+}
+.bs-callout-info h4 {
+    color: #34789A;
+}
+
+.bs-callout {
+    border-left: 3px solid #EEEEEE;
+    margin: 20px 0;
+    padding: 20px;
+}
+.bs-callout h4 {
+    margin-bottom: 5px;
+    margin-top: 0;
+}
+
 /*
 http://elvery.net/demo/responsive-tables/
 As the right menu is ovelayed on the responsive-table we are 
@@ -47,6 +65,7 @@ using the trick of not displaying a less important column in smaler screens
   #reward_tbl table td:nth-child(4),
   #reward_tbl table th:nth-child(4) {display: none;}
 }
+
 
 
 /*end bootstrap theme*/
@@ -93,13 +112,13 @@ using the trick of not displaying a less important column in smaler screens
     height: 300px;
 }
 
-.miner-bg {
-	padding:4px; 
-	background:url('../../assets/images/miner.gif') no-repeat top right; 
-	background-repeat: no-repeat; 
-	background-origin: content-box;
-	background-size:12%
-}
+/* .miner-bg { */
+/* 	padding:4px;  */
+/* 	background:url('../../assets/images/miner.gif') no-repeat top right;  */
+/* 	background-repeat: no-repeat;  */
+/* 	background-origin: content-box; */
+/* 	background-size:12% */
+/* } */
 
     .my-animation.ng-enter {
     /* standard transition code */

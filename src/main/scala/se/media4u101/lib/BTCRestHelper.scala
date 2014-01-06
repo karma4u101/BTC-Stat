@@ -3,6 +3,7 @@ package se.media4u101.lib
 import scala.xml.{ NodeSeq, Text }
 import net.liftweb.common._
 import net.liftweb.json.JsonAST._
+import net.liftweb.json.JsonDSL._  
 import net.liftweb.json.DefaultFormats
 
 trait BTCRestHelper extends Loggable {
@@ -23,22 +24,20 @@ trait BTCRestHelper extends Loggable {
     spdata    
   }
   
-  def getWalletData():JValue = {
+  def getWalletData(userLoggedIn:Boolean):JValue = {
     //logger.debug("BTCRestHelper::getWalletData()") 
     val data = RestProxy.fetchWalletData() 
-    val wdata = this.getMergedWalletData(data)  
+    val wdata = this.getMergedWalletData(data,userLoggedIn)  
     wdata
   }
   
   def getServerDateTime():JValue = {
-    import net.liftweb.json.JsonDSL._
     val millis = RestProxy.fetchServerSystemMillis()
     val datetime = this.getMergedServerDateTime(millis)
     datetime
   }  
   
   def getAccProfileData():JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getAccProfileData()")
     val apdata = RestProxy.fetchAccProfileData()
     val mtgoxSEK  = RestProxy.fetchMtgoxSEK()
@@ -54,13 +53,11 @@ trait BTCRestHelper extends Loggable {
   
   /*Methods below is doing some internal calculations and json manipulations, no other external references used */
   private def getMergedServerDateTime(millis:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     val dateTime = this.getFormatedServerDateTime(millis)
     dateTime
   }
   
   private def getMergedKapitonData(kdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedKapitonData()")
     val ask   = this.kaptionTickerAsk(kdata)
     val bid   = this.kaptionTickerBid(kdata)
@@ -75,7 +72,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def getMergedSlushPoolStatData(data:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedSlushPoolStatData()")    
     val round      = this.SlushPoolRoundStarted(data)
     val stratum    = this.SlushPoolStatActivetSratum(data)
@@ -93,20 +89,19 @@ trait BTCRestHelper extends Loggable {
     retval
   }
   
-  private def getMergedWalletData(wdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
+  private def getMergedWalletData(wdata:JValue,userLoggedIn:Boolean):JValue = {
     //logger.debug("BTCRestHelper::getMergedWalletData()")
     val ntx     = this.walletNrTransactions(wdata)
-    val recived = this.walletTotalReceived(wdata)
-    val balance = this.walletFinalBalance(wdata)
-    val split   = this.walletForwardSplit(wdata)
+    val recived = this.walletTotalReceived(wdata,userLoggedIn)
+    val balance = this.walletFinalBalance(wdata,userLoggedIn)
+    val split   = this.walletForwardSplit(wdata,userLoggedIn)
 
     val mtgoxSEK  = RestProxy.fetchMtgoxSEK() 
     val mtgoxUSD = RestProxy.fetchMtgoxUSD() 
     val mtgoxEUR = RestProxy.fetchMtgoxEUR()       
-    val sekdata = this.getMergedWalletMtgoxSEKData(wdata,mtgoxSEK)
-    val usddata = this.getMergedWalletMtgoxUSDData(wdata,mtgoxUSD)
-    val eurdata = this.getMergedWalletMtgoxEURData(wdata,mtgoxEUR)      
+    val sekdata = this.getMergedWalletMtgoxSEKData(wdata,mtgoxSEK,userLoggedIn)
+    val usddata = this.getMergedWalletMtgoxUSDData(wdata,mtgoxUSD,userLoggedIn)
+    val eurdata = this.getMergedWalletMtgoxEURData(wdata,mtgoxEUR,userLoggedIn)      
     
     val data = ntx merge recived merge balance merge split merge sekdata merge usddata merge eurdata
     data
@@ -114,42 +109,37 @@ trait BTCRestHelper extends Loggable {
   
   
   private def getMergedAccProfileData(accdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedAccProfileData()")
     val accum   = this.rewardAccumBTC(accdata)
     val data = accdata merge accum 
     data
   }
     
-  private def getMergedWalletMtgoxSEKData(wdata:JValue,mtgox:JValue) : JValue = {
-    import net.liftweb.json.JsonDSL._
-    val wbal   = this.walletFinalBalanceSEK(wdata,mtgox)
-    val wtot   = this.walletTotalReceivedSEK(wdata,mtgox)
-    val wsplit = this.walletForwardSplitSEK(wdata,mtgox)
+  private def getMergedWalletMtgoxSEKData(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean) : JValue = {
+    val wbal   = this.walletFinalBalanceSEK(wdata,mtgox,userLoggedIn)
+    val wtot   = this.walletTotalReceivedSEK(wdata,mtgox,userLoggedIn)
+    val wsplit = this.walletForwardSplitSEK(wdata,mtgox,userLoggedIn)
     val data = wbal merge wtot merge wsplit 
     data
   }  
    
-  private def getMergedWalletMtgoxUSDData(wdata:JValue,mtgox:JValue) : JValue = {
-    import net.liftweb.json.JsonDSL._
-    val wbal   = this.walletFinalBalanceUSD(wdata,mtgox)
-    val wtot   = this.walletTotalReceivedUSD(wdata,mtgox)
-    val wsplit = this.walletForwardSplitUSD(wdata,mtgox)
+  private def getMergedWalletMtgoxUSDData(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean) : JValue = {
+    val wbal   = this.walletFinalBalanceUSD(wdata,mtgox,userLoggedIn)
+    val wtot   = this.walletTotalReceivedUSD(wdata,mtgox,userLoggedIn)
+    val wsplit = this.walletForwardSplitUSD(wdata,mtgox,userLoggedIn)
     val data = wbal merge wtot merge wsplit 
     data
   }
   
-  private def getMergedWalletMtgoxEURData(wdata:JValue,mtgox:JValue) : JValue = {
-    import net.liftweb.json.JsonDSL._
-    val wbal   = this.walletFinalBalanceEUR(wdata,mtgox)
-    val wtot   = this.walletTotalReceivedEUR(wdata,mtgox)
-    val wsplit = this.walletForwardSplitEUR(wdata,mtgox)
+  private def getMergedWalletMtgoxEURData(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean) : JValue = {
+    val wbal   = this.walletFinalBalanceEUR(wdata,mtgox,userLoggedIn)
+    val wtot   = this.walletTotalReceivedEUR(wdata,mtgox,userLoggedIn)
+    val wsplit = this.walletForwardSplitEUR(wdata,mtgox,userLoggedIn)
     val data = wbal merge wtot merge wsplit 
     data
   }  
   
   private def getMergedMtgoxSEKData(accdata:JValue,mtgox:JValue) : JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedMtgoxSEKData()")    
     val conf   = this.confirmedRewardSEK(accdata, mtgox)
     val unconf = this.unConfirmedRewardSEK(accdata, mtgox)
@@ -160,7 +150,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def getMergedMtgoxUSDData(accdata:JValue,mtgox:JValue) : JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedMtgoxUSDData()")
     val conf   = this.confirmedRewardUSD(accdata, mtgox)
     val unconf = this.unConfirmedRewardUSD(accdata, mtgox)
@@ -171,7 +160,6 @@ trait BTCRestHelper extends Loggable {
   } 
   
   private def getMergedMtgoxEURData(accdata:JValue,mtgox:JValue) : JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::getMergedMtgoxEURData()")    
     val conf   = this.confirmedRewardEUR(accdata, mtgox)
     val unconf = this.unConfirmedRewardEUR(accdata, mtgox)
@@ -190,7 +178,6 @@ trait BTCRestHelper extends Loggable {
   /*-------------Account Profile data start ------------------*/
   
   private def getFormatedServerDateTime(data:JValue) :JValue = {
-    import net.liftweb.json.JsonDSL._
     val millis : Option[BigInt] = (for {JField("btc_server_system_millis",JInt(millis)) <- data } yield millis).headOption
     val date = new java.util.Date(millis.get.toLong)
     val formatter = new java.text.SimpleDateFormat("dd MMM 'at' HH:mm z") 
@@ -199,7 +186,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def rewardAccumBTC(data:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::rewardAccumBTC()") 
     val confirmed:Option[String] = (for {JField("confirmed_reward",JString(confirmed_reward)) <- data } yield confirmed_reward).headOption
     val unconfirmed:Option[String] = (for {JField("unconfirmed_reward",JString(unconfirmed_reward)) <- data } yield unconfirmed_reward).headOption
@@ -211,9 +197,7 @@ trait BTCRestHelper extends Loggable {
     }
   }
 
-  //SEK
   private def estimatedRewardSEK(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::estimatedRewardSEK()")     
     val estimated:Option[String] = (for {JField("estimated_reward",JString(estimated_reward)) <- accdata } yield estimated_reward).headOption
     val last:Option[String] = (for {
@@ -235,7 +219,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def confirmedRewardSEK(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::confirmedRewardSEK()")     
     val confirmed:Option[String] =(for { JField("confirmed_reward",JString(confirmed_reward)) <- accdata } yield confirmed_reward ).headOption
     val last:Option[String] = (for {
@@ -257,7 +240,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def unConfirmedRewardSEK(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::unConfirmedRewardSEK()")     
     val unconfirmed:Option[String] =(for { JField("unconfirmed_reward",JString(unconfirmed_reward)) <- accdata } yield unconfirmed_reward ).headOption
     val last:Option[String] = (for {
@@ -279,7 +261,6 @@ trait BTCRestHelper extends Loggable {
   }    
   
   private def rewardAccumTotalSEK(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::rewardAccumTotalSEK()")     
     val confirmed:Option[String] =(for { JField("confirmed_reward",JString(confirmed_reward)) <- accdata } yield confirmed_reward ).headOption
     val unconfirmed:Option[String] =(for { JField("unconfirmed_reward",JString(unconfirmed_reward)) <- accdata } yield unconfirmed_reward ).headOption
@@ -301,9 +282,7 @@ trait BTCRestHelper extends Loggable {
       }
   }  
     
-  //USD
   private def estimatedRewardUSD(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::estimatedRewardUSD()")     
     val estimated:Option[String] = (for {JField("estimated_reward",JString(estimated_reward)) <- accdata } yield estimated_reward).headOption
     val last:Option[String] = (for {
@@ -325,7 +304,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def confirmedRewardUSD(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::confirmedRewardUSD()")     
     val confirmed:Option[String] =(for { JField("confirmed_reward",JString(confirmed_reward)) <- accdata } yield confirmed_reward ).headOption
     val last:Option[String] = (for {
@@ -347,7 +325,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def unConfirmedRewardUSD(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::unConfirmedRewardUSD()")     
     val unconfirmed:Option[String] =(for { JField("unconfirmed_reward",JString(unconfirmed_reward)) <- accdata } yield unconfirmed_reward ).headOption
     val last:Option[String] = (for {
@@ -369,7 +346,6 @@ trait BTCRestHelper extends Loggable {
   }    
   
   private def rewardAccumTotalUSD(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::rewardAccumTotalUSD()")     
     val confirmed:Option[String] =(for { JField("confirmed_reward",JString(confirmed_reward)) <- accdata } yield confirmed_reward ).headOption
     val unconfirmed:Option[String] =(for { JField("unconfirmed_reward",JString(unconfirmed_reward)) <- accdata } yield unconfirmed_reward ).headOption
@@ -391,9 +367,7 @@ trait BTCRestHelper extends Loggable {
       }    
   }
   
-  //EUR
   private def estimatedRewardEUR(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::estimatedRewardEUR()")     
     val estimated:Option[String] = (for {JField("estimated_reward",JString(estimated_reward)) <- accdata } yield estimated_reward).headOption
     val last:Option[String] = (for {
@@ -415,7 +389,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def confirmedRewardEUR(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::confirmedRewardEUR()")         
     val confirmed:Option[String] =(for { JField("confirmed_reward",JString(confirmed_reward)) <- accdata } yield confirmed_reward ).headOption
     val last:Option[String] = (for {
@@ -437,7 +410,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def unConfirmedRewardEUR(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::unConfirmedRewardEUR()")     
     val unconfirmed:Option[String] =(for { JField("unconfirmed_reward",JString(unconfirmed_reward)) <- accdata } yield unconfirmed_reward ).headOption
     val last:Option[String] = (for {
@@ -459,7 +431,6 @@ trait BTCRestHelper extends Loggable {
   }    
   
   private def rewardAccumTotalEUR(accdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
     //logger.debug("BTCRestHelper::rewardAccumTotalEUR()")     
     val confirmed:Option[String] =(for { JField("confirmed_reward",JString(confirmed_reward)) <- accdata } yield confirmed_reward ).headOption
     val unconfirmed:Option[String] =(for { JField("unconfirmed_reward",JString(unconfirmed_reward)) <- accdata } yield unconfirmed_reward ).headOption
@@ -485,27 +456,28 @@ trait BTCRestHelper extends Loggable {
 
   /*-------------Wallet data start ------------------*/
   
-  private def walletForwardSplit(wdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._      
-    //logger.debug("BTCRestHelper::walletForwardSplit()")     
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    if(balance.isDefined && totres.isDefined){
-      val split = (totres.get.toDouble - balance.get.toDouble) / (3*100000000) //forward split in 3 parts
-      ("wallet_forward_split" -> split)
-    }else{
-      ("wallet_forward_split" -> "NaN")
-    }         
+  private def walletForwardSplit(wdata:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => {   
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      if(balance.isDefined && totres.isDefined){
+        val split = (totres.get.toDouble - balance.get.toDouble) / (3*100000000) //forward split in 3 parts
+        ("wallet_forward_split" -> split)
+      }else{
+        ("wallet_forward_split" -> "NaN")
+      }         
+    }
+    case false => ("wallet_forward_split" -> "Hidden")
   }
   
-  private def walletForwardSplitSEK(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
+  private def walletForwardSplitSEK(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => {   
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
       } yield value  ).headOption 
       if(balance.isDefined && totres.isDefined && last.isDefined){
         val split = ((totres.get.toDouble - balance.get.toDouble) / (3*100000000)) * last.get.toDouble
@@ -517,18 +489,20 @@ trait BTCRestHelper extends Loggable {
         ("wallet_forward_split_sek" -> fsplit)
       }else{
         ("wallet_forward_split_sek" -> "NaN")
-      } 
+      }
+    }
+    case false => ("wallet_forward_split_sek" -> "Hidden")
   }    
   
-   private def walletForwardSplitUSD(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletForwardSplitUSD(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => { 
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(balance.isDefined && totres.isDefined && last.isDefined){
         val split = ((totres.get.toDouble - balance.get.toDouble) / (3*100000000)) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -540,17 +514,19 @@ trait BTCRestHelper extends Loggable {
       }else{
         ("wallet_forward_split_usd" -> "NaN")
       } 
+    }
+    case false => ("wallet_forward_split_usd" -> "Hidden")
   } 
   
-  private def walletForwardSplitEUR(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletForwardSplitEUR(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => { 
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(balance.isDefined && totres.isDefined && last.isDefined){
         val split = ((totres.get.toDouble - balance.get.toDouble) / (3*100000000)) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -561,50 +537,56 @@ trait BTCRestHelper extends Loggable {
         ("wallet_forward_split_eur" -> fsplit)
       }else{
         ("wallet_forward_split_eur" -> "NaN")
-      } 
+      }
+    }
+    case false => ("wallet_forward_split_eur" -> "Hidden")
   }
   
-  private def walletFinalBalance(wdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._      
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    if(balance.isDefined){
-      val totBtc = balance.get.toDouble / 100000000
-      ("wallet_final_balance" -> totBtc)
-    }else{
-      ("wallet_final_balance" -> "NaN")
-    }    
+  private def walletFinalBalance(wdata:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => { 
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      if(balance.isDefined){
+        val totBtc = balance.get.toDouble / 100000000
+        ("wallet_final_balance" -> totBtc)
+      }else{
+        ("wallet_final_balance" -> "NaN")
+      }
+    }
+    case false => ("wallet_final_balance" -> "Hidden")
   }
     
   
-  private def walletFinalBalanceSEK(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
-      if(balance.isDefined && last.isDefined){
-        val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
-        val f:java.text.DecimalFormat = new java.text.DecimalFormat()
-        f.setRoundingMode(java.math.RoundingMode.HALF_UP)
-        f.setMaximumFractionDigits(0)        
-        f.setCurrency(java.util.Currency.getInstance("SEK"))
-        val fsum = f.format(sum)
-        ("wallet_final_balance_sek" -> fsum )
-      }else{
-        ("wallet_final_balance_sek" -> "NaN" )
-      }
+  private def walletFinalBalanceSEK(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => { 
+     val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+     val last:Option[String] = (for {
+       JField("data",JObject(list)) <- mtgox 
+       JField("last_all",JObject(list2))  <- list
+       JField("value",JString(value)) <- list2
+       } yield value  ).headOption 
+       if(balance.isDefined && last.isDefined){
+         val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
+         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
+         f.setRoundingMode(java.math.RoundingMode.HALF_UP)
+         f.setMaximumFractionDigits(0)        
+         f.setCurrency(java.util.Currency.getInstance("SEK"))
+         val fsum = f.format(sum)
+         ("wallet_final_balance_sek" -> fsum )
+       }else{
+         ("wallet_final_balance_sek" -> "NaN" )
+       }
+    }
+    case false => ("wallet_final_balance_sek" -> "Hidden" )
   }   
   
-  private def walletFinalBalanceUSD(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletFinalBalanceUSD(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => { 
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(balance.isDefined && last.isDefined){
         val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -616,16 +598,18 @@ trait BTCRestHelper extends Loggable {
       }else{
         ("wallet_final_balance_usd" -> "NaN" )
       }
+    }
+    case false => ("wallet_final_balance_usd" -> "Hidden" )
   }  
   
-  private def walletFinalBalanceEUR(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletFinalBalanceEUR(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => { 
+      val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(balance.isDefined && last.isDefined){
         val sum = (balance.get.toDouble / 100000000) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -637,27 +621,31 @@ trait BTCRestHelper extends Loggable {
       }else{
         ("wallet_final_balance_eur" -> "NaN" )
       }
-  }   
-  
-  private def walletTotalReceived(wdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._      
-    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    if(received.isDefined){
-      val totBtc = received.get.toDouble / 100000000
-      ("wallet_total_received" -> totBtc)
-    }else{
-      ("wallet_total_received" -> "NaN")
     }
+    case false => ("wallet_final_balance_eur" -> "Hidden" )    
+  }
+
+  private def walletTotalReceived(wdata: JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => {    
+      val received: Option[BigInt] = (for { JField("total_received", JInt(total_received)) <- wdata } yield total_received).headOption
+      if (received.isDefined) {
+        val totBtc = received.get.toDouble / 100000000
+        ("wallet_total_received" -> totBtc)
+      } else {
+        ("wallet_total_received" -> "NaN")
+      }
+    }
+    case false => ("wallet_total_received" -> "Hidden" )        
   }  
   
-  private def walletTotalReceivedSEK(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletTotalReceivedSEK(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => {    
+      val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(received.isDefined && last.isDefined){
         val sum = (received.get.toDouble / 100000000) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -669,16 +657,18 @@ trait BTCRestHelper extends Loggable {
       }else{
         ("wallet_total_received_sek" -> "NaN" )
       }
+    }
+    case false => ("wallet_total_received_sek" -> "Hidden" )            
   }    
   
-  private def walletTotalReceivedUSD(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletTotalReceivedUSD(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => {       
+      val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(received.isDefined && last.isDefined){
         val sum = (received.get.toDouble / 100000000) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -690,16 +680,18 @@ trait BTCRestHelper extends Loggable {
       }else{
         ("wallet_total_received_usd" -> "NaN" )
       }
+    }
+    case false => ("wallet_total_received_usd" -> "Hidden" )                
   }    
   
-  private def walletTotalReceivedEUR(wdata:JValue,mtgox:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._
-    val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
-    val last:Option[String] = (for {
-      JField("data",JObject(list)) <- mtgox 
-      JField("last_all",JObject(list2))  <- list
-      JField("value",JString(value)) <- list2
-      } yield value  ).headOption 
+  private def walletTotalReceivedEUR(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
+    case true => {               
+      val received:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
+      val last:Option[String] = (for {
+        JField("data",JObject(list)) <- mtgox 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+        } yield value  ).headOption 
       if(received.isDefined && last.isDefined){
         val sum = (received.get.toDouble / 100000000) * last.get.toDouble
         val f:java.text.DecimalFormat = new java.text.DecimalFormat()
@@ -711,10 +703,11 @@ trait BTCRestHelper extends Loggable {
       }else{
         ("wallet_total_received_eur" -> "NaN" )
       }
+    }  
+    case false => ("wallet_total_received_eur" -> "Hidden" )                    
   }  
   
   private def walletNrTransactions(wdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._      
     //logger.debug("BTCRestHelper::walletNrTransactions()")     
     val n_trans:Option[BigInt]  = (for { JField("n_tx",JInt(n_trans)) <- wdata } yield n_trans).headOption
     if (n_trans.isDefined){
@@ -729,13 +722,11 @@ trait BTCRestHelper extends Loggable {
   /*-------------SlushPool stat data start ------------------*/
 
   private def slushPoolStatLuck(data:JValue,inFieldName:String):Option[String] = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField(inFieldName,JString(value)) <- data } yield value ).headOption
     value          
   }   
   
   private def SlushPoolStatRoundDuration(spdata:JValue):JValue    = {
-    import net.liftweb.json.JsonDSL._      
     val duration:Option[String] =(for { JField("round_duration",JString(round_duration)) <- spdata } yield round_duration ).headOption
     if(duration.isDefined){
       ("sps_round_duration" -> duration)
@@ -744,7 +735,6 @@ trait BTCRestHelper extends Loggable {
     }
   }
   private def SlushPoolStatGHashesPoolShare(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._      
     val ghashes:Option[String] =(for { JField("ghashes_ps",JString(ghashes_ps)) <- spdata } yield ghashes_ps ).headOption
     if(ghashes.isDefined){
       ("sps_ghashes_ps" -> ghashes.get)
@@ -754,7 +744,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def SlushPoolStatTHashesPoolShare(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val ghashes:Option[String] =(for { JField("ghashes_ps",JString(ghashes_ps)) <- spdata } yield ghashes_ps ).headOption
     if(ghashes.isDefined){
       val thashes = ghashes.get.toDouble / 1000
@@ -766,7 +755,6 @@ trait BTCRestHelper extends Loggable {
   
   
   private def SlushPoolStatShares(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val shares:Option[BigInt] =(for { JField("shares",JInt(shares)) <- spdata } yield shares ).headOption
     if(shares.isDefined){
       ("sps_shares" -> shares.get)
@@ -776,7 +764,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def SlushPoolStatActiveWorkers(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val workers:Option[String] =(for { JField("active_workers",JString(active_workers)) <- spdata } yield active_workers ).headOption
     if(workers.isDefined){
       ("sps_active_workers" -> workers.get)      
@@ -786,7 +773,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def SlushPoolStatActivetSratum(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField("active_stratum",JString(active_stratum)) <- spdata } yield active_stratum ).headOption
     if(value.isDefined){
       ("sps_active_stratum" -> value.get)      
@@ -796,7 +782,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def SlushPoolStatScore(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField("score",JString(score)) <- spdata } yield score ).headOption
     if(value.isDefined){
       ("sps_score" -> value.get)      
@@ -808,10 +793,8 @@ trait BTCRestHelper extends Loggable {
 
   
   private def SlushPoolRoundStarted(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField("round_started",JString(round_started)) <- spdata } yield round_started ).headOption
     if(value.isDefined){
-      //logger.debug("BTCRestHelper::SlushPoolRoundStarted value.get='"+value.get+"'")
       ("sps_round_started" -> value.get)      
     }else{
       ("sps_round_started" -> "NaN")      
@@ -819,7 +802,6 @@ trait BTCRestHelper extends Loggable {
   }
 
   private def slushPoolStatLuck(data:JValue,inFieldName:String,outFiledName:String):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField(inFieldName,JString(value)) <- data } yield value ).headOption
     if(value.isDefined){
       val luck = (value.get.toDouble*100).round
@@ -830,7 +812,6 @@ trait BTCRestHelper extends Loggable {
   }    
   
   private def SlushPoolStatLuck7(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField("luck_7",JString(luck_7)) <- spdata } yield luck_7 ).headOption
     if(value.isDefined){
       val luck = (value.get.toDouble*100).round
@@ -841,7 +822,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def SlushPoolStatLuck30(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[String] =(for { JField("luck_30",JString(luck_30)) <- spdata } yield luck_30 ).headOption
     if(value.isDefined){
       val luck = (value.get.toDouble*100).round
@@ -851,34 +831,24 @@ trait BTCRestHelper extends Loggable {
     }        
   }
   
+  private def SlushPoolStatLuck1(spdata:JValue):JValue = (for { JField("luck_1",JString(luck_1)) <- spdata } yield luck_1 ).headOption match {
+    case Some(value) => {
+      val luck = (value.toDouble*100).round
+      ("sps_luck_1" -> luck) }
+    case None => ("sps_luck_1" -> "NaN")      
+  }       
   
-  private def SlushPoolStatLuck1(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
-    val value:Option[String] =(for { JField("luck_1",JString(luck_1)) <- spdata } yield luck_1 ).headOption
-    if(value.isDefined){
-      val luck = (value.get.toDouble*100).round
-      ("sps_luck_1" -> luck)      
-    }else{
-      ("sps_luck_1" -> "NaN")      
-    }          
-  }
-  
-  private def SlushPoolStatSharesCDF(spdata:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
-    val value:Option[String] =(for { JField("shares_cdf",JString(shares_cdf)) <- spdata } yield shares_cdf ).headOption
-    if(value.isDefined){
-      ("sps_shares_cdf" -> value.get)      
-    }else{
-      ("sps_shares_cdf" -> "NaN")      
-    }     
-  }
+  private def SlushPoolStatSharesCDF(spdata:JValue):JValue = (for { JField("shares_cdf",JString(shares_cdf)) <- spdata } yield shares_cdf ).headOption  match {
+    case Some(value) => ("sps_shares_cdf" -> value)      
+    case None => ("sps_shares_cdf" -> "NaN")      
+  }     
+    
 
   /*-------------SlushPool stat data end ------------------*/
   
   /*-------------Kapiton data end ------------------*/
 
   private def kaptionTickerPrice(data:JValue):JValue = {
-    import net.liftweb.json.JsonDSL._     
     val value:Option[Double] =(for { JField("price",JDouble(price)) <- data } yield price ).headOption
     if(value.isDefined){
       ("kapiton_ticker_price" -> value.get)      
@@ -888,7 +858,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerBid(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[Double] =(for { JField("bid",JDouble(bid)) <- data } yield bid ).headOption
     if(value.isDefined){
       ("kapiton_ticker_bid" -> value.get)      
@@ -898,7 +867,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerAsk(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[Double] =(for { JField("ask",JDouble(ask)) <- data } yield ask ).headOption
     if(value.isDefined){
       ("kapiton_ticker_ask" -> value.get)      
@@ -908,7 +876,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerHi(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[BigInt] =(for { JField("hi",JInt(hi)) <- data } yield hi ).headOption
     if(value.isDefined){
       ("kapiton_ticker_hi" -> value.get)      
@@ -918,7 +885,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerLow(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[BigInt] =(for { JField("low",JInt(low)) <- data } yield low ).headOption
     if(value.isDefined){
       ("kapiton_ticker_low" -> value.get)      
@@ -928,7 +894,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerVol(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[BigInt] =(for { JField("vol",JInt(vol)) <- data } yield vol ).headOption
     if(value.isDefined){
       ("kapiton_ticker_vol" -> value.get)      
@@ -938,7 +903,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerMonthAverage(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[Double] =(for { JField("moavg",JDouble(moavg)) <- data } yield moavg ).headOption
     if(value.isDefined){
       ("kapiton_ticker_moavg" -> value.get)      
@@ -948,7 +912,6 @@ trait BTCRestHelper extends Loggable {
   }
   
   private def kaptionTickerMonthVolym(data:JValue):JValue = {
-   import net.liftweb.json.JsonDSL._     
     val value:Option[Double] =(for { JField("movol",JDouble(movol)) <- data } yield movol ).headOption
     if(value.isDefined){
       ("kapiton_ticker_movol" -> value.get)      
@@ -956,8 +919,7 @@ trait BTCRestHelper extends Loggable {
       ("kapiton_ticker_movol" -> "NaN")      
     }     
   }
-  
-  
+
   /*-------------Kapiton data end ------------------*/
 
 }

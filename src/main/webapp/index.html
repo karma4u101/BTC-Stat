@@ -6,22 +6,44 @@
 </head>
 <body class="lift:content_id=main">
 	<div id="main" class="lift:surround?with=default;at=content">
-
+<!--     <div id="ajax-loader" style="display:none; float: left; margin-left: 10px;"><i class="fa-li fa fa-spinner fa-spin fa-2x"></i></div> -->
 		<div class="row">
 			<div class="col-sm-12">
+                			   
 				<div style="float: left; margin-right: 10px;">
 					<i class="fa fa-btc fa-5x"></i>
 				</div>
+				
 				<h2>Welcome to BTC Stat!</h2>
+				
 				<p>Information on this page is
 					only of interest to the owners of this BTC mining operation. Thank
 					you for visiting!</p>
 			</div>
 		</div>
-
+        
 			<!-- transaction section start -->
 			<div class="row">
 				<div class="col-sm-12 miner-bg">
+				
+        <div data-lift='test_cond.loggedout'>
+        
+<!--           <div class="alert alert-info alert-dismissable"> -->
+<!--             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
+<!--             <h4><i class="fa fa-exclamation-triangle fa-2x"></i> Hidden values!</h4> -->
+<!--             <p>As you are <strong>not authentication</strong> some mildly sensitive information will be filtered and  -->
+<!--             marked as hidden.</p> -->
+<!--           </div> -->
+          
+          <div class="bs-callout bs-callout-info" >
+            <h4><i class="fa fa-exclamation-triangle fa-2x"></i> Hidden values!</h4>
+            <p>As you are <strong>not authentication</strong> some mildly sensitive information will be filtered and 
+              marked as hidden.</p>
+          </div>          
+                  
+        </div>	
+                 			
+				
 					<h3><i class="fa fa-credit-card"></i> Mining revenue <small ng-controller="ServerDateTimeCtrl">Data fetched {{myData.btc_server_dt}}</small></h3>				
 					
 					<!-- NEW Wallet -->
