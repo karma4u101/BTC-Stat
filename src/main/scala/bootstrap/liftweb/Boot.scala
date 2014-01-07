@@ -143,6 +143,20 @@ class Boot {
         LocGroup("lg1"),
         FoBo.TBLocInfo.LinkTargetBlank ))
         
+        //https://www.kraken.com/
+    val kraken  = Menu(Loc("kraken", 
+        ExtLink("https://www.kraken.com/"),
+        S.loc("kraken", Text("Kraken")),
+        LocGroup("lg1"),
+        FoBo.TBLocInfo.LinkTargetBlank ))
+       
+        //http://cointext.com/
+    val cointext  = Menu(Loc("cointext", 
+        ExtLink("http://cointext.com/"),
+        S.loc("cointext", Text("Cointext")),
+        LocGroup("lg1"),
+        FoBo.TBLocInfo.LinkTargetBlank ))        
+        
     def sitemap = SiteMap(
           home >> LocGroup("lg1","top1"),
          /* testing , */
@@ -153,7 +167,9 @@ class Boot {
           /*kapiton,*/
           btctrading,
           mtgox,
-          genesis
+          genesis,
+          kraken,
+          cointext
         )    
   } 
   
