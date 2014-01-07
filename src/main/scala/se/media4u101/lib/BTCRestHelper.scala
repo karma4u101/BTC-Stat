@@ -5,10 +5,13 @@ import net.liftweb.common._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._  
 import net.liftweb.json.DefaultFormats
+import net.liftweb.util.{ Props }
 
 trait BTCRestHelper extends Loggable {
 
   implicit val formats = DefaultFormats
+  
+  lazy val forwardSplitValue = Props.getInt("revenue.forward.split", 1)
   
   def getKapitonData():JValue = {
     //logger.debug("BTCRestHelper::getKapitonData()")    
@@ -461,7 +464,7 @@ trait BTCRestHelper extends Loggable {
       val balance:Option[BigInt] = (for {JField("final_balance",JInt(final_balance)) <- wdata } yield final_balance).headOption
       val totres:Option[BigInt] = (for {JField("total_received",JInt(total_received)) <- wdata } yield total_received).headOption
       if(balance.isDefined && totres.isDefined){
-        val split = (totres.get.toDouble - balance.get.toDouble) / (3*100000000) //forward split in 3 parts
+        val split = (totres.get.toDouble - balance.get.toDouble) / (forwardSplitValue*100000000) //forward split in 3 parts
         ("wallet_forward_split" -> split)
       }else{
         ("wallet_forward_split" -> "NaN")

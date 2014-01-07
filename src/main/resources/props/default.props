@@ -1,5 +1,6 @@
 pool.account.profile=<put address/id here>
 blockchain.info.address=<put address here> 
+revenue.forward.split=<X int value => revenue forward split in X parts>
 require.user.login=<true => require login | false => no hidden values >
 login.user.name=<put login a user name here>
 login.user.pw=<put login password here>
