@@ -31,9 +31,16 @@ class Boot {
     //The SiteMap is built in the Site object bellow 
     LiftRules.setSiteMapFunc(() => Site.sitemap)
     
+    lazy val requireUserLogin = Props.getBool("require.user.login",false)
+    System.out.println("Boot::boot properties require.user.login="+requireUserLogin)
+    
     LiftRules.loggedInTest = Full( 
       () => {
-        isLoggedIn.get
+        if(requireUserLogin==true){
+          isLoggedIn.get
+        }else{
+          true //defaults to logged in if require.login=false
+        }
       }
     )    
     

@@ -10,13 +10,15 @@ import json.JsonAST.{JString, JArray, JValue}
 
 import net.liftweb.util.Schedule
 import net.liftweb.util.Helpers._
-//import net.liftweb.actor.LiftActor
 import net.liftweb.http.SessionVar
-import se.media4u101.lib.SessionChecker
+import net.liftweb.util.{ Props }
 
 object isLoggedIn extends SessionVar[Boolean](false)
 
 trait RoundTrips extends EmptyRoundTrip with BTCRestHelper with Loggable {
+  
+  lazy val propname = Props.get("login.user.name","").trim()
+  lazy val proppw = Props.get("login.user.pw","").trim()   
   
   protected def doAccProfileRT(value : JValue, func : RoundTripHandlerFunc) : Unit = {
     logger.debug("RoundTrips::doAccProfileRT()")
@@ -49,17 +51,18 @@ trait RoundTrips extends EmptyRoundTrip with BTCRestHelper with Loggable {
     import net.liftweb.json.JsonParser._
     import net.liftweb.json.JsonAST.{JObject, JField, JString, JArray, JValue}
     implicit val formats = net.liftweb.json.DefaultFormats  
-    
+       
+    logger.debug("doLoginRT propuser="+propname+" proppw="+proppw)
     val pval = parse(value.extract[String])
     val name:Option[String] =(for { JField("name",JString(v)) <- pval } yield v ).headOption
     val pw:Option[String] =(for { JField("password",JString(v)) <- pval } yield v ).headOption
 
     import net.liftweb.json.JsonDSL._
     //the only correct login value is hardcoded here
-    if(name.get.equals("poj") && pw.get.equals("pojpoj")){
+    if(name.get.equals(propname) && pw.get.equals(proppw)){
       isLoggedIn.set(true)
     }else{
-      isLoggedIn.set(false)
+      logger.warn("RoundTrips::doLoginRT user suplied name='"+name.get+"' pw='"+pw.get+"' do not match setting in properties")
     }
     
     val auth = if(S.loggedIn_?) {

@@ -1,2 +1,5 @@
 pool.account.profile=<put address/id here>
 blockchain.info.address=<put address here> 
+require.user.login=<true => require login | false => no hidden values >
+login.user.name=<put login a user name here>
+login.user.pw=<put login password here>
