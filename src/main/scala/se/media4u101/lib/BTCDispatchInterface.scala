@@ -11,24 +11,26 @@ trait BTCDispatchInterface extends Loggable {
     val start: Long = System.currentTimeMillis 
     val mySecureHost = host("mining.bitcoin.cz").secure
     val myRequest = mySecureHost / "accounts" / "profile" / "json" / poolAccountProfile.get 
-    val response = Http(myRequest OK as.String)
+    val response= Http(myRequest OK as.String)//.either
+    //for (res <- response.left) yield logger.error("BTCDispatchInterface::doFetchAccProfileData "+res.getMessage() )
+    //for (res <- response.right) yield res.right
     val json = parse(response())  
     val stop: Long = System.currentTimeMillis
     logger.debug("BTCDispatchInterface::fetchAccProfileData() done took "+((stop-start))+"ms")     
     json 
   }  
     
-  protected def doFetchKapitonData():JValue = {
-    import net.liftweb.json.JsonParser._  
-    val start: Long = System.currentTimeMillis
-    val mySecureHost = host("kapiton.se").secure
-    val myRequest = mySecureHost / "api" / "0" / "ticker" 
-    val response = Http(myRequest OK as.String)
-    val json = parse(response())  
-    val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchKapitonData() done took "+((stop-start))+"ms")      
-    json
-  }    
+//  protected def doFetchKapitonData():JValue = {
+//    import net.liftweb.json.JsonParser._  
+//    val start: Long = System.currentTimeMillis
+//    val mySecureHost = host("kapiton.se").secure
+//    val myRequest = mySecureHost / "api" / "0" / "ticker" 
+//    val response = Http(myRequest OK as.String)
+//    val json = parse(response())  
+//    val stop: Long = System.currentTimeMillis
+//    logger.debug("BTCDispatchInterface::fetchKapitonData() done took "+((stop-start))+"ms")      
+//    json
+//  }    
     
   protected def doFetchSlushPoolStat():JValue = {
     import net.liftweb.json.JsonParser._  

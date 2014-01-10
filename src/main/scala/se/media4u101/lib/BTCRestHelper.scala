@@ -13,12 +13,14 @@ trait BTCRestHelper extends Loggable {
   
   lazy val forwardSplitValue = Props.getInt("revenue.forward.split", 1)
   
+  /*
   def getKapitonData():JValue = {
     //logger.debug("BTCRestHelper::getKapitonData()")    
     val data = RestProxy.fetchKapitonData()
     val kdata = this.getMergedKapitonData(data)
     kdata     
   }
+  */
   
   def getSlushPoolStatData():JValue = {
     //logger.debug("BTCRestHelper::getSlushPoolStat()")   
@@ -56,10 +58,12 @@ trait BTCRestHelper extends Loggable {
   
   /*Methods below is doing some internal calculations and json manipulations, no other external references used */
   private def getMergedServerDateTime(millis:JValue):JValue = {
-    val dateTime = this.getFormatedServerDateTime(millis)
+    //val dateTime = this.getFormatedServerDateTime(millis)
+    val dateTime = this.simpelBigIntTransform( (for {JField("btc_server_system_millis",JInt(v)) <- millis } yield v).headOption, "btc_server_dt")
     dateTime
   }
   
+  /*
   private def getMergedKapitonData(kdata:JValue):JValue = {
     //logger.debug("BTCRestHelper::getMergedKapitonData()")
     val ask   = this.kaptionTickerAsk(kdata)
@@ -73,21 +77,22 @@ trait BTCRestHelper extends Loggable {
     val data = ask merge bid merge hi merge low merge mave merge mvol merge price merge vol
     data
   }
+  */
   
   private def getMergedSlushPoolStatData(data:JValue):JValue = {
-    //logger.debug("BTCRestHelper::getMergedSlushPoolStatData()")    
-    val round      = this.SlushPoolRoundStarted(data)
-    val stratum    = this.SlushPoolStatActivetSratum(data)
-    val workers    = this.SlushPoolStatActiveWorkers(data)
-    val ghashshare = this.SlushPoolStatGHashesPoolShare(data)    
-    val luck1      = this.SlushPoolStatLuck1(data)
-    val luck7      = this.SlushPoolStatLuck7(data)
-    val luck30     = this.SlushPoolStatLuck30(data)
-    val duration   = this.SlushPoolStatRoundDuration(data)
-    val score      = this.SlushPoolStatScore(data)
-    val shares     = this.SlushPoolStatShares(data)
-    val sharesCDF  = this.SlushPoolStatSharesCDF(data)
-    val thashshare = this.SlushPoolStatTHashesPoolShare(data)
+    //logger.debug("BTCRestHelper::getMergedSlushPoolStatData()")  
+    val round      = this.simpelStringTransform((for { JField("round_started",JString(value)) <- data } yield value ).headOption,"sps_round_started")
+    val stratum    = this.simpelStringTransform((for { JField("active_stratum",JString(active_stratum)) <- data } yield active_stratum ).headOption,"sps_active_stratum")
+    val workers    = this.simpelStringTransform( (for { JField("active_workers",JString(value)) <- data } yield value ).headOption, "sps_active_workers") 
+    val ghashshare = this.simpelStringTransform( (for { JField("ghashes_ps",JString(s)) <- data } yield s ).headOption, "sps_ghashes_ps")
+    val duration   = this.simpelStringTransform( (for { JField("round_duration",JString(s)) <- data } yield s ).headOption, "sps_round_duration")
+    val score      = this.simpelStringTransform( (for { JField("score"         ,JString(s)) <- data } yield s ).headOption, "sps_score")
+    val sharesCDF  = this.simpelStringTransform( (for { JField("shares_cdf"    ,JString(s)) <- data } yield s ).headOption ,"sps_shares_cdf")
+    val shares     = this.simpelBigIntTransform( (for { JField("shares"        ,JInt(i)) <- data } yield i ).headOption, "sps_shares")
+    val luck1      = this.slushPoolStatLuck( (for { JField("luck_1"        ,JString(s)) <- data } yield s ).headOption, "sps_luck_1")
+    val luck7      = this.slushPoolStatLuck( (for { JField("luck_7"        ,JString(s)) <- data } yield s ).headOption, "sps_luck_7")
+    val luck30     = this.slushPoolStatLuck( (for { JField("luck_30"       ,JString(s)) <- data } yield s ).headOption, "sps_luck_30")
+    val thashshare = this.slushPoolStatTHashesPoolShare( (for { JField("ghashes_ps",JString(s)) <- data } yield s ).headOption,"sps_thashes_ps" )
     val retval = round merge stratum merge workers merge ghashshare merge luck1 merge luck7 merge luck30 merge duration merge score merge shares merge sharesCDF merge thashshare  
     retval
   }
@@ -175,18 +180,21 @@ trait BTCRestHelper extends Loggable {
 
   /*--------General transforms start (is not working)--------*/
   
-    
+  private def simpelStringTransform(exp: Option[String], outName:String  ):JValue = 
+    exp match {
+    case Some(value) => (outName -> value)      
+    case None => (outName -> "NaN")      
+  }
+  
+  private def simpelBigIntTransform(exp: Option[BigInt], outName:String  ):JValue = 
+    exp match {
+    case Some(value) => (outName -> value)      
+    case None => (outName -> "NaN")      
+  }    
+  
  /*--------General transforms-end-------*/ 
   
   /*-------------Account Profile data start ------------------*/
-  
-  private def getFormatedServerDateTime(data:JValue) :JValue = {
-    val millis : Option[BigInt] = (for {JField("btc_server_system_millis",JInt(millis)) <- data } yield millis).headOption
-    val date = new java.util.Date(millis.get.toLong)
-    val formatter = new java.text.SimpleDateFormat("dd MMM 'at' HH:mm z") 
-    val fdate = formatter.format(date)
-    ("btc_server_dt" -> fdate)
-  }
   
   private def rewardAccumBTC(data:JValue):JValue = {
     //logger.debug("BTCRestHelper::rewardAccumBTC()") 
@@ -723,134 +731,34 @@ trait BTCRestHelper extends Loggable {
   /*-------------Wallet data end ------------------*/
 
   /*-------------SlushPool stat data start ------------------*/
-
-  private def slushPoolStatLuck(data:JValue,inFieldName:String):Option[String] = {
-    val value:Option[String] =(for { JField(inFieldName,JString(value)) <- data } yield value ).headOption
-    value          
-  }   
   
-  private def SlushPoolStatRoundDuration(spdata:JValue):JValue    = {
-    val duration:Option[String] =(for { JField("round_duration",JString(round_duration)) <- spdata } yield round_duration ).headOption
-    if(duration.isDefined){
-      ("sps_round_duration" -> duration)
-    }else{
-      ("sps_round_duration" -> "NaN")
+  private def slushPoolStatTHashesPoolShare(exp: Option[String],outName:String):JValue = 
+    exp match {
+      case Some(value) => {
+      val res = value.toDouble / 1000
+      (outName -> res)
     }
-  }
-  private def SlushPoolStatGHashesPoolShare(spdata:JValue):JValue = {
-    val ghashes:Option[String] =(for { JField("ghashes_ps",JString(ghashes_ps)) <- spdata } yield ghashes_ps ).headOption
-    if(ghashes.isDefined){
-      ("sps_ghashes_ps" -> ghashes.get)
-    }else{
-      ("sps_ghashes_ps" -> "NaN")
-    }    
-  }
+    case None => (outName -> "NaN")
+  }  
   
-  private def SlushPoolStatTHashesPoolShare(spdata:JValue):JValue = {
-    val ghashes:Option[String] =(for { JField("ghashes_ps",JString(ghashes_ps)) <- spdata } yield ghashes_ps ).headOption
-    if(ghashes.isDefined){
-      val thashes = ghashes.get.toDouble / 1000
-      ("sps_thashes_ps" -> thashes)
-    }else{
-      ("sps_thashes_ps" -> "NaN")
-    }
+  private def slushPoolStatScore(exp: Option[String], outName:String  ):JValue = 
+    exp match {
+    case Some(value) => (outName -> value)      
+    case None => (outName -> "NaN")      
   }
   
-  
-  private def SlushPoolStatShares(spdata:JValue):JValue = {
-    val shares:Option[BigInt] =(for { JField("shares",JInt(shares)) <- spdata } yield shares ).headOption
-    if(shares.isDefined){
-      ("sps_shares" -> shares.get)
-    }else{
-      ("sps_shares" -> "NaN")
-    }
-  }
-  
-  private def SlushPoolStatActiveWorkers(spdata:JValue):JValue = {
-    val workers:Option[String] =(for { JField("active_workers",JString(active_workers)) <- spdata } yield active_workers ).headOption
-    if(workers.isDefined){
-      ("sps_active_workers" -> workers.get)      
-    }else{
-      ("sps_active_workers" -> "NaN")      
-    }
-  }
-  
-  private def SlushPoolStatActivetSratum(spdata:JValue):JValue = {
-    val value:Option[String] =(for { JField("active_stratum",JString(active_stratum)) <- spdata } yield active_stratum ).headOption
-    if(value.isDefined){
-      ("sps_active_stratum" -> value.get)      
-    }else{
-      ("sps_active_stratum" -> "NaN")      
-    }    
-  }
-  
-  private def SlushPoolStatScore(spdata:JValue):JValue = {
-    val value:Option[String] =(for { JField("score",JString(score)) <- spdata } yield score ).headOption
-    if(value.isDefined){
-      ("sps_score" -> value.get)      
-    }else{
-      ("sps_score" -> "NaN")      
-    }     
-  }
-  
-
-  
-  private def SlushPoolRoundStarted(spdata:JValue):JValue = {
-    val value:Option[String] =(for { JField("round_started",JString(round_started)) <- spdata } yield round_started ).headOption
-    if(value.isDefined){
-      ("sps_round_started" -> value.get)      
-    }else{
-      ("sps_round_started" -> "NaN")      
-    }     
-  }
-
-  private def slushPoolStatLuck(data:JValue,inFieldName:String,outFiledName:String):JValue = {
-    val value:Option[String] =(for { JField(inFieldName,JString(value)) <- data } yield value ).headOption
-    if(value.isDefined){
-      val luck = (value.get.toDouble*100).round
-      (outFiledName -> luck)      
-    }else{
-      (outFiledName -> "NaN")      
-    }           
-  }    
-  
-  private def SlushPoolStatLuck7(spdata:JValue):JValue = {
-    val value:Option[String] =(for { JField("luck_7",JString(luck_7)) <- spdata } yield luck_7 ).headOption
-    if(value.isDefined){
-      val luck = (value.get.toDouble*100).round
-      ("sps_luck_7" -> luck)      
-    }else{
-      ("sps_luck_7" -> "NaN")      
-    }     
-  }
-  
-  private def SlushPoolStatLuck30(spdata:JValue):JValue = {
-    val value:Option[String] =(for { JField("luck_30",JString(luck_30)) <- spdata } yield luck_30 ).headOption
-    if(value.isDefined){
-      val luck = (value.get.toDouble*100).round
-      ("sps_luck_30" -> luck)      
-    }else{
-      ("sps_luck_30" -> "NaN")      
-    }        
-  }
-  
-  private def SlushPoolStatLuck1(spdata:JValue):JValue = (for { JField("luck_1",JString(luck_1)) <- spdata } yield luck_1 ).headOption match {
+  private def slushPoolStatLuck(expr:Option[String],outName:String):JValue = 
+    expr match {
     case Some(value) => {
-      val luck = (value.toDouble*100).round
-      ("sps_luck_1" -> luck) }
-    case None => ("sps_luck_1" -> "NaN")      
-  }       
-  
-  private def SlushPoolStatSharesCDF(spdata:JValue):JValue = (for { JField("shares_cdf",JString(shares_cdf)) <- spdata } yield shares_cdf ).headOption  match {
-    case Some(value) => ("sps_shares_cdf" -> value)      
-    case None => ("sps_shares_cdf" -> "NaN")      
-  }     
-    
+      val res = (value.toDouble*100).round
+      (outName -> res) }
+    case None => (outName -> "NaN")      
+  }   
 
   /*-------------SlushPool stat data end ------------------*/
   
-  /*-------------Kapiton data end ------------------*/
-
+  /*-------------Kapiton data ------------------*/
+/*
   private def kaptionTickerPrice(data:JValue):JValue = {
     val value:Option[Double] =(for { JField("price",JDouble(price)) <- data } yield price ).headOption
     if(value.isDefined){
@@ -922,7 +830,7 @@ trait BTCRestHelper extends Loggable {
       ("kapiton_ticker_movol" -> "NaN")      
     }     
   }
-
+*/
   /*-------------Kapiton data end ------------------*/
 
 }

@@ -10,9 +10,9 @@ object RestProxy extends BTCDispatchInterface {
   val poolAccountProfile:Box[String] = Props.get("pool.account.profile") 
   val blockchainInfoAddress:Box[String] = Props.get("blockchain.info.address")
   
-  def fetchKapitonData() : JValue = {    
-    kapitonJson
-  }
+//  def fetchKapitonData() : JValue = {    
+//    kapitonJson
+//  }
   
   def fetchSlushPoolStat() : JValue = {    
     slushPoolJson
@@ -44,7 +44,7 @@ object RestProxy extends BTCDispatchInterface {
   
   private[media4u101] def doScheduleJob():Unit = this.synchronized {
         doScheduledFetchAccProfileData()
-        doScheduledfetchKapitonData()
+        //doScheduledfetchKapitonData()
         doScheduledfetchSlushPoolStat()
         doScheduledfetchWalletData()
         doScheduledfetchMtgoxSEK()
@@ -68,9 +68,9 @@ object RestProxy extends BTCDispatchInterface {
     accProfileJson = doFetchAccProfileData(poolAccountProfile)
   }  
   
-  private def doScheduledfetchKapitonData() : Unit = {    
-    kapitonJson = doFetchKapitonData()
-  }    
+//  private def doScheduledfetchKapitonData() : Unit = {    
+//    kapitonJson = doFetchKapitonData()
+//  }    
     
   private def doScheduledfetchSlushPoolStat() : Unit = {
     slushPoolJson = doFetchSlushPoolStat()     
@@ -97,7 +97,7 @@ object RestProxy extends BTCDispatchInterface {
   @volatile private var mtgoxSEKJson:JValue = null
   @volatile private var walletJson:JValue = null
   @volatile private var slushPoolJson:JValue = null
-  @volatile private var kapitonJson:JValue = null
+//  @volatile private var kapitonJson:JValue = null
   @volatile private var accProfileJson:JValue = null
   @volatile private var serverDateTimeJson:JValue = null
   
