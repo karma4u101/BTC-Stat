@@ -58,9 +58,17 @@ trait BTCRestHelper extends Loggable {
   
   /*Methods below is doing some internal calculations and json manipulations, no other external references used */
   private def getMergedServerDateTime(millis:JValue):JValue = {
-    //val dateTime = this.getFormatedServerDateTime(millis)
-    val dateTime = this.simpelBigIntTransform( (for {JField("btc_server_system_millis",JInt(v)) <- millis } yield v).headOption, "btc_server_dt")
+    val dateTime = this.getFormatedServerDateTime(millis)
+    //val dateTime = this.simpelBigIntTransform( (for {JField("btc_server_system_millis",JInt(v)) <- millis } yield v).headOption, "btc_server_dt")
     dateTime
+  }
+  
+  private def getFormatedServerDateTime(data:JValue) :JValue = {
+    val millis : Option[BigInt] = (for {JField("btc_server_system_millis",JInt(millis)) <- data } yield millis).headOption
+    val date = new java.util.Date(millis.get.toLong)
+    val formatter = new java.text.SimpleDateFormat("dd MMM 'at' HH:mm z") 
+    val fdate = formatter.format(date)
+    ("btc_server_dt" -> fdate)
   }
   
   /*
