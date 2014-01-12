@@ -26,12 +26,24 @@ object RestProxy extends BTCDispatchInterface {
     mtgoxSEKJson
   }
   
+  def fetchMtgoxSEKPrev() : JValue = {
+    mtgoxSEKPrevJson
+  }  
+  
   def fetchMtgoxUSD() : JValue = {  
     mtgoxUSDJson
   } 
   
+  def fetchMtgoxUSDPrev() : JValue = {  
+    mtgoxUSDPrevJson
+  }   
+  
   def fetchMtgoxEUR() : JValue = {  
     mtgoxEURJson
+  } 
+  
+  def fetchMtgoxEURPrev() : JValue = {  
+    mtgoxEURPrevJson
   }   
 
   def fetchAccProfileData():JValue = {    
@@ -81,20 +93,41 @@ object RestProxy extends BTCDispatchInterface {
   }
   
   private def doScheduledfetchMtgoxSEK() : Unit = { 
-    mtgoxSEKJson = doFetchMtgoxSEK()    
+    val newval = doFetchMtgoxSEK()  
+    if(mtgoxSEKJson != null){
+    mtgoxSEKPrevJson = mtgoxSEKJson
+    }else{
+      mtgoxSEKPrevJson = newval
+    }
+    mtgoxSEKJson = newval
   }
   
   private def doScheduledfetchMtgoxUSD() : Unit = {
-    mtgoxUSDJson = doFetchMtgoxUSD()    
+    val newval = doFetchMtgoxUSD()  
+    if(mtgoxUSDJson != null){
+    mtgoxUSDPrevJson = mtgoxUSDJson
+    }else{
+      mtgoxUSDPrevJson = newval
+    }
+    mtgoxUSDJson = newval    
   }
 
   private def doScheduledfetchMtgoxEUR() : Unit = {   
-    mtgoxEURJson = doFetchMtgoxEUR()    
+    val newval = doFetchMtgoxEUR()  
+    if(mtgoxEURJson != null){
+    mtgoxEURPrevJson = mtgoxEURJson
+    }else{
+      mtgoxEURPrevJson = newval
+    }
+    mtgoxEURJson = newval    
   }   
   
   @volatile private var mtgoxEURJson:JValue = null
+  @volatile private var mtgoxEURPrevJson:JValue = null
   @volatile private var mtgoxUSDJson:JValue = null
+  @volatile private var mtgoxUSDPrevJson:JValue = null
   @volatile private var mtgoxSEKJson:JValue = null
+  @volatile private var mtgoxSEKPrevJson:JValue = null
   @volatile private var walletJson:JValue = null
   @volatile private var slushPoolJson:JValue = null
 //  @volatile private var kapitonJson:JValue = null
