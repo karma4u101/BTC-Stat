@@ -113,11 +113,14 @@ trait BTCRestHelper extends Loggable {
     val split   = this.walletForwardSplit(wdata,userLoggedIn)
 
     val mtgoxSEK  = RestProxy.fetchMtgoxSEK() 
+    val mtgoxSEKPrev = RestProxy.fetchMtgoxSEKPrev()
     val mtgoxUSD = RestProxy.fetchMtgoxUSD() 
-    val mtgoxEUR = RestProxy.fetchMtgoxEUR()       
-    val sekdata = this.getMergedWalletMtgoxSEKData(wdata,mtgoxSEK,userLoggedIn)
-    val usddata = this.getMergedWalletMtgoxUSDData(wdata,mtgoxUSD,userLoggedIn)
-    val eurdata = this.getMergedWalletMtgoxEURData(wdata,mtgoxEUR,userLoggedIn)      
+    val mtgoxUSDPrev = RestProxy.fetchMtgoxUSDPrev()
+    val mtgoxEUR = RestProxy.fetchMtgoxEUR()  
+    val mtgoxEURPrev = RestProxy.fetchMtgoxEURPrev()
+    val sekdata = this.getMergedWalletMtgoxSEKData(wdata,mtgoxSEK,mtgoxSEKPrev,userLoggedIn)
+    val usddata = this.getMergedWalletMtgoxUSDData(wdata,mtgoxUSD,mtgoxUSDPrev,userLoggedIn)
+    val eurdata = this.getMergedWalletMtgoxEURData(wdata,mtgoxEUR,mtgoxEURPrev,userLoggedIn)      
     
     val data = ntx merge recived merge balance merge split merge sekdata merge usddata merge eurdata
     data
@@ -131,27 +134,30 @@ trait BTCRestHelper extends Loggable {
     data
   }
     
-  private def getMergedWalletMtgoxSEKData(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean) : JValue = {
+  private def getMergedWalletMtgoxSEKData(wdata:JValue,mtgox:JValue,prevmtgox:JValue,userLoggedIn:Boolean) : JValue = {
     val wbal   = this.walletFinalBalanceSEK(wdata,mtgox,userLoggedIn)
     val wtot   = this.walletTotalReceivedSEK(wdata,mtgox,userLoggedIn)
     val wsplit = this.walletForwardSplitSEK(wdata,mtgox,userLoggedIn)
-    val data = wbal merge wtot merge wsplit 
+    val splitchange = this.currencyShortTrendSEKChange(mtgox,prevmtgox)
+    val data = wbal merge wtot merge wsplit merge splitchange
     data
   }  
    
-  private def getMergedWalletMtgoxUSDData(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean) : JValue = {
+  private def getMergedWalletMtgoxUSDData(wdata:JValue,mtgox:JValue,prevmtgox:JValue,userLoggedIn:Boolean) : JValue = {
     val wbal   = this.walletFinalBalanceUSD(wdata,mtgox,userLoggedIn)
     val wtot   = this.walletTotalReceivedUSD(wdata,mtgox,userLoggedIn)
     val wsplit = this.walletForwardSplitUSD(wdata,mtgox,userLoggedIn)
-    val data = wbal merge wtot merge wsplit 
+    val splitchange = this.currencyShortTrendUSDChange(mtgox,prevmtgox)
+    val data = wbal merge wtot merge wsplit merge splitchange
     data
   }
   
-  private def getMergedWalletMtgoxEURData(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean) : JValue = {
+  private def getMergedWalletMtgoxEURData(wdata:JValue,mtgox:JValue,prevmtgox:JValue,userLoggedIn:Boolean) : JValue = {
     val wbal   = this.walletFinalBalanceEUR(wdata,mtgox,userLoggedIn)
     val wtot   = this.walletTotalReceivedEUR(wdata,mtgox,userLoggedIn)
     val wsplit = this.walletForwardSplitEUR(wdata,mtgox,userLoggedIn)
-    val data = wbal merge wtot merge wsplit 
+    val splitchange = this.currencyShortTrendEURChange(mtgox,prevmtgox)
+    val data = wbal merge wtot merge wsplit merge splitchange
     data
   }  
   
@@ -488,6 +494,90 @@ trait BTCRestHelper extends Loggable {
     }
     case false => ("wallet_forward_split" -> "Hidden")
   }
+  
+  private def currencyShortTrendSEKChange(now:JValue,prev:JValue):JValue = {
+  
+      val lastNow:Option[String] = (for {
+        JField("data",JObject(list)) <- now 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      val lastPrev:Option[String] = (for {
+        JField("data",JObject(list)) <- prev 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+      } yield value  ).headOption       
+      if(lastNow.isDefined && lastPrev.isDefined){
+        val nld = lastNow.get.toDouble
+        val pld = lastPrev.get.toDouble
+        //logger.debug("BTCRestHelper::walletForwardSplitSEKChange nld="+nld+" pld="+pld)
+        if(nld>pld){
+          ("currency_short_trend_sek_change" -> "up")
+        }else if(nld<pld){
+          ("currency_short_trend_sek_change" -> "down")
+        }else{
+          ("currency_short_trend_sek_change" -> "eq")
+        }
+      }else{
+        ("currency_short_trend_sek_change" -> "eq")
+      }
+  }
+  
+  private def currencyShortTrendEURChange(now:JValue,prev:JValue):JValue = {
+  
+      val lastNow:Option[String] = (for {
+        JField("data",JObject(list)) <- now 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      val lastPrev:Option[String] = (for {
+        JField("data",JObject(list)) <- prev 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+      } yield value  ).headOption       
+      if(lastNow.isDefined && lastPrev.isDefined){
+        val nld = lastNow.get.toDouble
+        val pld = lastPrev.get.toDouble
+        //logger.debug("BTCRestHelper::walletForwardSplitSEKChange nld="+nld+" pld="+pld)
+        if(nld>pld){
+          ("currency_short_trend_eur_change" -> "up")
+        }else if(nld<pld){
+          ("currency_short_trend_eur_change" -> "down")
+        }else{
+          ("currency_short_trend_eur_change" -> "eq")
+        }
+      }else{
+        ("currency_short_trend_eur_change" -> "eq")
+      }
+  }  
+  
+  private def currencyShortTrendUSDChange(now:JValue,prev:JValue):JValue = {
+  
+      val lastNow:Option[String] = (for {
+        JField("data",JObject(list)) <- now 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+      } yield value  ).headOption 
+      val lastPrev:Option[String] = (for {
+        JField("data",JObject(list)) <- prev 
+        JField("last_all",JObject(list2))  <- list
+        JField("value",JString(value)) <- list2
+      } yield value  ).headOption       
+      if(lastNow.isDefined && lastPrev.isDefined){
+        val nld = lastNow.get.toDouble
+        val pld = lastPrev.get.toDouble
+        //logger.debug("BTCRestHelper::walletForwardSplitSEKChange nld="+nld+" pld="+pld)
+        if(nld>pld){
+          ("currency_short_trend_usd_change" -> "up")
+        }else if(nld<pld){
+          ("currency_short_trend_usd_change" -> "down")
+        }else{
+          ("currency_short_trend_usd_change" -> "eq")
+        }
+      }else{
+        ("currency_short_trend_usd_change" -> "eq")
+      }
+  }    
   
   private def walletForwardSplitSEK(wdata:JValue,mtgox:JValue,userLoggedIn:Boolean):JValue = userLoggedIn match {
     case true => {   
