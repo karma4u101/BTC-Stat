@@ -15,13 +15,13 @@ object BTCScheduledRestTask extends LiftActor with Loggable {
    def messageHandler = {  
      case DoJob => 
        if (!stopped) {
-        logger.debug("BTCScheduledRestTask.DoIt start about to schedule the job")
+        logger.info("BTCScheduledRestTask.DoIt start about to schedule the job")
         Schedule.schedule(this, DoJob, 2 minutes)
-        logger.debug("BTCScheduledRestTask.DoIt starting job")
+        logger.info("BTCScheduledRestTask.DoIt starting job")
         
         RestProxy.doScheduleJob() 
         
-        logger.debug("BTCScheduledRestTask.DoIt end")
+        logger.info("BTCScheduledRestTask.DoIt end")
         }else{
           logger.debug("BTCScheduledRestTask.DoIt Oh I have been asked to stop oki doki bye bye")
         }

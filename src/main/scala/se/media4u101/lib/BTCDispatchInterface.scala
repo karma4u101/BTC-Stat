@@ -20,7 +20,7 @@ trait BTCDispatchInterface extends Loggable{
       this.handleResponseError(err) 
     }
     val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchAccProfileData() done took "+((stop-start))+"ms")     
+    logger.info("BTCDispatchInterface::fetchAccProfileData() done took "+((stop-start))+"ms")     
     json 
   }  
   
@@ -49,7 +49,7 @@ trait BTCDispatchInterface extends Loggable{
       this.handleResponseError(err) 
     }
     val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchSlushPoolStat() done took "+((stop-start))+"ms")   
+    logger.info("BTCDispatchInterface::fetchSlushPoolStat() done took "+((stop-start))+"ms")   
     json     
   }
   
@@ -59,15 +59,20 @@ trait BTCDispatchInterface extends Loggable{
     val mySecureHost = host("blockchain.info").secure
     val myRequest = mySecureHost / "address" / blockchainInfoAddress.get <<? ("format" -> "json") :: Nil
     val response = Http(myRequest OK as.String).either
-    val json = parse((response().right).getOrElse(""))
-    if(response().isLeft){ 
-      val err = response().left.get 
+    logger.info("BTCDispatchInterface::fetchWalletData() about to fetch response")
+    val theRes = response()
+    logger.info("BTCDispatchInterface::fetchWalletData() response fetched ... about to parse response")
+    val json = parse { theRes.right getOrElse "" }
+    logger.info("BTCDispatchInterface::fetchWalletData() parsing response done ... about to check for errors")
+    if(theRes.isLeft){ 
+      val err = theRes.left.get 
       logger.error("BTCDispatchInterface::doFetchWalletData got a exception: "+err.getMessage())
       this.handleResponseError(err) 
     }    
     val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchWalletData() start done took "+((stop-start))+"ms") 
+    logger.info("BTCDispatchInterface::fetchWalletData() done took "+((stop-start))+"ms") 
     json       
+   
   }
   
   protected def doFetchMtgoxSEK():JValue = {
@@ -84,7 +89,7 @@ trait BTCDispatchInterface extends Loggable{
       this.handleResponseError(err) 
     }
     val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchMtgoxSEK() done took "+((stop-start))+"ms")  
+    logger.info("BTCDispatchInterface::fetchMtgoxSEK() done took "+((stop-start))+"ms")  
     json    
   }
   
@@ -101,7 +106,7 @@ trait BTCDispatchInterface extends Loggable{
       this.handleResponseError(err) 
     }
     val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchMtgoxUSD() done took "+((stop-start))+"ms") 
+    logger.info("BTCDispatchInterface::fetchMtgoxUSD() done took "+((stop-start))+"ms") 
     json    
   }
 
@@ -118,7 +123,7 @@ trait BTCDispatchInterface extends Loggable{
       this.handleResponseError(err) 
     }
     val stop: Long = System.currentTimeMillis
-    logger.debug("BTCDispatchInterface::fetchMtgoxEUR() done took "+((stop-start))+"ms")     
+    logger.info("BTCDispatchInterface::fetchMtgoxEUR() done took "+((stop-start))+"ms")     
     json    
   }       
   

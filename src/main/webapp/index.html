@@ -6,7 +6,6 @@
 </head>
 <body class="lift:content_id=main">
 	<div id="main" class="lift:surround?with=default;at=content">
-<!--     <div id="ajax-loader" style="display:none; float: left; margin-left: 10px;"><i class="fa-li fa fa-spinner fa-spin fa-2x"></i></div> -->
 		<div class="row">
 			<div class="col-sm-12">
                 			   
@@ -28,12 +27,6 @@
 				
         <div data-lift='test_cond.loggedout'>
         
-<!--           <div class="alert alert-info alert-dismissable"> -->
-<!--             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
-<!--             <h4><i class="fa fa-exclamation-triangle fa-2x"></i> Hidden values!</h4> -->
-<!--             <p>As you are <strong>not authentication</strong> some mildly sensitive information will be filtered and  -->
-<!--             marked as hidden.</p> -->
-<!--           </div> -->
           
           <div class="bs-callout bs-callout-info" >
             <h4><i class="fa fa-exclamation-triangle fa-2x"></i> Hidden values!</h4>
@@ -48,6 +41,7 @@
 					
 					<!-- NEW Wallet -->
 					<div ng-controller="WalletCtrl" class="table-responsive">
+					
 						<table class="table table-hover table-striped">
 							<thead>
 								<tr>
@@ -63,7 +57,8 @@
 									<th>Forward Split</strong> <i class="fa fa-share"></i></th>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody >
+							<!-- ng-repeat="d in myData" -->
 								<tr>
 									<td><strong>BTC</strong></td>
 									<td style="color:darkgreen;"><abbr id="wallet_total_received"
@@ -125,11 +120,13 @@
 								</tr>		
 								<tr>
 									<td><strong>SEK</strong></td>
-									<td><abbr id="wallet_total_received"
+									<td>
+									    <abbr id="wallet_total_received"
 										class="wallet_total_received_tip" 
 										title="Total amount received from all incomming transactions">{{myData.wallet_total_received_sek}}</abbr>
 										<span ng-show="myData.length != 0">SEK</span>
 									</td>
+									
 									<td><abbr id="wallet_final_balance"
 										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance_sek}}</abbr>
 										<span ng-show="myData.length != 0">SEK</span>
@@ -140,58 +137,16 @@
 										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split_sek}}</abbr>
 										<span ng-show="myData.length != 0">SEK</span>
 									   <span ng-show="myData.currency_short_trend_sek_change == 'up'"><i class="fa fa-arrow-up" style="color:green;"></i></span>
-									   <span ng-show="myData.currency_short_trend_sek_change == 'down'"><i class="fa fa-arrow-down" style="color:darkred;"></i></span>
+									   <span ng-show="myData.currency_short_trend_sek_change == 'down'"><i class="fa fa-arrow-down"  style="color:darkred;"></i></span>
 									   <span ng-show="myData.currency_short_trend_sek_change == 'eq'"></span>
-										
+									   	
 									</td>
 								</tr>														
 							</tbody>
 						</table>
 					</div>					
 					
-					
-					<!-- OLD Wallet -->
-<!-- 					<div ng-controller="WalletCtrl" class="table-responsive"> -->
-<!-- 						<table class="table table-hover table-striped"> -->
-<!-- 							<thead> -->
-<!-- 								<tr> -->
-<!-- 									<th><span class="label label-warning" style="margin-right:5px;" ng-show="myData.length == 0"><i class="fa fa-spinner fa-spin"></i> Loading...</span><i class="fa fa-exchange"></i>  -->
-<!-- 									<abbr id="transactions_pop" title="Transactions" -->
-<!-- 										data-content="Incomming transactions is from mining work. Outgoing transactions is rewards to lazy miners. Frirst incomming transaction whas recived 2013-12-03">Transactions</abbr> -->
-<!-- 									</th> -->
-<!-- 									<th></th> -->
-<!-- 									<th></th> -->
-<!-- 									<th></th> -->
-<!-- 								</tr> -->
-<!-- 							</thead> -->
-<!-- 							<tbody> -->
-<!-- 								<tr> -->
-<!-- 									<td><strong>Total Received</strong></td> -->
-<!-- 									<td style="color:darkgreen;"><abbr id="wallet_total_received" -->
-<!-- 										class="wallet_total_received_tip"  -->
-<!-- 										title="Total amount received from all incomming transactions">{{myData.wallet_total_received}}</abbr> -->
-<!-- 										<span ng-show="myData.length != 0">BTC</span></td> -->
-<!-- 									<td><strong>No. Transactions</strong></td> -->
-<!-- 									<td><abbr id="wallet_no_transactions" -->
-<!-- 										class="wallet_no_transactions_tip" -->
-<!-- 										title="Total number of transactions">{{myData.wallet_no_transactions}}</abbr></td> -->
-<!-- 								</tr> -->
-<!-- 								<tr> -->
-<!-- 									<td><strong>Final Balance</strong></td> -->
-<!-- 									<td><abbr id="wallet_final_balance" -->
-<!-- 										class="wallet_final_balance_tip" title="Current final balance">{{myData.wallet_final_balance}}</abbr> -->
-<!-- 										<span ng-show="myData.length != 0">BTC</span></td> -->
-<!-- 									<td><strong>Forward Split</strong> <i class="fa fa-share"></i></td> -->
-<!-- 									<td><abbr id="wallet_forward_split" -->
-<!-- 										class="wallet_forward_split_tip" -->
-<!-- 										title="Estimated total transfer amount to each owner">{{myData.wallet_forward_split}}</abbr> -->
-<!-- 										<span ng-show="myData.length != 0">BTC</span></td> -->
-<!-- 								</tr> -->
-<!-- 							</tbody> -->
-<!-- 						</table> -->
-<!-- 					</div> -->
-					
-					
+										
 				</div>
 			</div>
 			<!-- transaction section end -->
@@ -495,6 +450,7 @@
 		<script data-lift="FoBo.Bs3Comp.popover?id=#transactions_pop&options=placement:'auto top',trigger:'hover'"></script>
 
         <span data-lift="RoundTripInjector"> This snippet injects the roundtrip binding scripts</span>
+                   
 	</div>
 </body>
 </html>
