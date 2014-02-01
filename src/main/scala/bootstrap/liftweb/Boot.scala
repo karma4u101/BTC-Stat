@@ -61,7 +61,7 @@ class Boot {
 
     //Init the FoBo - Front-End Toolkit module, 
     //see http://liftweb.net/lift_modules for more info
-    FoBo.InitParam.JQuery=FoBo.JQuery1102  
+    FoBo.InitParam.JQuery=FoBo.JQuery1102 //191  
     FoBo.InitParam.ToolKit=FoBo.Bootstrap301
     FoBo.InitParam.ToolKit=FoBo.FontAwesome401
     FoBo.InitParam.ToolKit=FoBo.AngularJS122
@@ -157,6 +157,13 @@ class Boot {
         LocGroup("lg1"),
         FoBo.TBLocInfo.LinkTargetBlank ))
        
+        //http://markets.blockchain.info
+    val blockchain  = Menu(Loc("blockchain", 
+        ExtLink("http://markets.blockchain.info"),
+        S.loc("blockchain", Text("BlockChain")),
+        LocGroup("lg1"),
+        FoBo.TBLocInfo.LinkTargetBlank ))
+        
         //http://cointext.com/
     val cointext  = Menu(Loc("cointext", 
         ExtLink("http://cointext.com/"),
@@ -175,6 +182,7 @@ class Boot {
           btctrading,
           mtgox,
           genesis,
+          blockchain,
           kraken,
           cointext
         )    
